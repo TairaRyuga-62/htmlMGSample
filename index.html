@@ -100,7 +100,7 @@ button:disabled{opacity:.35;cursor:not-allowed}
 .betin button{min-width:44px}
 .preview{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;background:var(--bg);border:1px solid var(--stock-d);border-radius:10px;padding:10px 12px;font-size:.85rem;color:var(--muted)}
 .preview b{font-family:var(--display);font-weight:400;font-size:1.6rem;color:var(--stock);font-variant-numeric:tabular-nums}
-.tile .pay{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--display);font-size:clamp(.5rem,1.6vw,.85rem);color:var(--ink);background:var(--fg);border-radius:5px;padding:1px 4px;line-height:1.25;z-index:2;white-space:nowrap}
+.tile .pay{max-width:96%;overflow:hidden;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--display);font-size:clamp(.5rem,1.6vw,.85rem);color:var(--ink);background:var(--fg);border-radius:5px;padding:1px 4px;line-height:1.25;z-index:2;white-space:nowrap}
 .bigpay{display:flex;justify-content:space-between;align-items:center;gap:8px;border:2px solid var(--stock);border-radius:12px;padding:10px 14px}
 .bigpay span{font-size:.85rem;color:var(--fg);display:flex;align-items:center;gap:6px;font-weight:700}
 .bigpay b{font-family:var(--display);font-weight:400;font-size:2rem;color:var(--stock);font-variant-numeric:tabular-nums}
@@ -250,10 +250,10 @@ body{margin:0}
 .bulbs{position:absolute;inset:4px;pointer-events:none;z-index:4}
 .bulbs i{position:absolute;width:8px;height:8px;margin:-4px;border-radius:50%;background:#3a3448}
 .bulbs i.on{background:#fff3c4;box-shadow:0 0 6px #f7c948,0 0 12px #f7c948}
-.bulbs i.on.win{background:#fff;box-shadow:0 0 8px #fff,0 0 16px #f7c948}
-.bulbs i.on.out{background:#ff8a92;box-shadow:0 0 8px #ec4e5a,0 0 14px #ec4e5a}
-.bulbs i.on.check{background:#b8ffd6;box-shadow:0 0 8px #3fbf7f,0 0 14px #3fbf7f}
-.bulbs i.on.safe{background:#fff;box-shadow:0 0 8px #fff}
+.bulbs i.on.b-win{background:#fff;box-shadow:0 0 8px #fff,0 0 16px #f7c948}
+.bulbs i.on.b-out{background:#ff8a92;box-shadow:0 0 8px #ec4e5a,0 0 14px #ec4e5a}
+.bulbs i.on.b-check{background:#b8ffd6;box-shadow:0 0 8px #3fbf7f,0 0 14px #3fbf7f}
+.bulbs i.on.b-safe{background:#fff;box-shadow:0 0 8px #fff}
 .rayclip{position:absolute;inset:0;overflow:hidden;border-radius:16px;pointer-events:none;z-index:5}
 .rays{position:absolute;left:50%;top:50%;width:160%;aspect-ratio:1;translate:-50% -50%;opacity:0;
   background:repeating-conic-gradient(from 0deg,rgba(255,243,196,.45) 0 7deg,transparent 7deg 18deg);
@@ -462,6 +462,30 @@ html.low .page.shake,html.low .page.shake2,html.low .page.tense{animation:none!i
 html.low .boardwrap.hot2,html.low .boardwrap.hot3,html.low .stock.t3,html.low .gekibadge,html.low .oya b,html.low .yokoku.on,html.low .boardwrap.geki2 .stage,html.low .boardwrap.geki3 .stage{animation:none!important}
 html.low .flashout{display:none}
 html.low .rays,html.low .crack,html.low .flashw{display:none}
+
+/* ===== 見切れ対策:ラベルと数字は縦に積む。長い文字は折り返す ===== */
+.bigpay{flex-direction:column!important;align-items:stretch!important;gap:2px!important}
+.bigpay span{display:flex;flex-wrap:wrap;align-items:center;gap:4px;line-height:1.4}
+.bigpay b{text-align:right;width:100%}
+.pcard .top{flex-wrap:wrap;row-gap:4px}
+.pcard .top b{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;word-break:break-all;flex:1 1 4em}
+.pcard .st{margin-left:0!important}
+.oya{flex-wrap:wrap}
+.check h3{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+.two button{min-width:0;white-space:normal;word-break:break-all}
+.topbar .stat{min-width:0}
+.topbar #tDealer{flex-wrap:wrap}
+.offer{grid-template-columns:44px minmax(0,1fr)!important}
+.offer button{grid-column:1/-1}
+.offer button br{display:none}
+.offer button small{display:inline!important;margin-left:6px}
+.watch,.lockd,.toast,.cpop span{overflow-wrap:anywhere}
+.stock span{overflow-wrap:anywhere}
+.side h2{flex-wrap:wrap;gap:4px}
+.betin input{min-width:0;flex:1 1 5em}
+.mych div span{min-width:0;overflow-wrap:anywhere}
+.tile .pay.long{font-size:clamp(.36rem,1.05vw,.62rem);padding:1px 2px;letter-spacing:-.02em}
+.yokoku small{max-width:46cqw;white-space:normal}
 </style>
 </head>
 <body>
@@ -522,6 +546,8 @@ const MAX_SPIN=20, BONUS20=50, START_MEDALS=50, MAX_PLAYERS=5, SAFE_SPINS=3;
 /* オッズは表のあとも1段ごとに1.35倍ずつ伸び続ける(1兆まで届くように) */
 const oddsAt=i=>i<ODDS.length?ODDS[i]:Math.round(ODDS[ODDS.length-1]*Math.pow(1.35,i-ODDS.length+1));
 const fmtN=n=>Math.round(n).toLocaleString("ja-JP");
+/* マスの上など狭い場所用:1万以上は「万」「億」「兆」で短くする */
+const fmtS=n=>{n=Math.round(n);const u=[[1e12,"兆"],[1e8,"億"],[1e4,"万"]];for(const [v,k] of u)if(n>=v){const x=n/v;return (x>=100?Math.floor(x):Math.floor(x*10)/10)+k}return n.toLocaleString("ja-JP")};
 /* 金額の桁で演出の段階が決まる:10枚=1、100枚=2 … 1兆枚=12 */
 const tierOf=n=>n>=10?Math.min(12,Math.floor(Math.log10(n)+1e-9)):0;
 const TIERN=["","当たり!","大当たり!!","超大当たり!!!","JACKPOT!!!!","MEGA JACKPOT","GIGA JACKPOT","TERA JACKPOT","億り人!!","十億の夢","百億の神","千億の神話","1兆 伝説!!!"];
@@ -912,7 +938,7 @@ function roundEnd(){
 /* お守りの値段は「所持コインの○%」。ショップ1回につき1つだけ買える */
 const costOf=(p,o)=>Math.max(10,Math.floor(p.medals*o.pct/100));
 function rollOffers(p){
-  const pool=shuffle(Object.keys(CHARMS).filter(id=>!p.charms.some(c=>c.id===id))).slice(0,4);
+  const pool=shuffle(Object.keys(CHARMS).filter(id=>!p.charms.some(c=>c.id===id))).slice(0,3);
   p.offers=pool.map(id=>{const dw=DW_POOL[Math.random()*DW_POOL.length|0];return {id,dw,sold:false,pct:Math.round(CHARMS[id].price*.5)-(dw==="none"?0:8),price:0}});
 }
 async function shopPhase(){
@@ -952,7 +978,7 @@ function paintBoard(){
     if(c===OUT){t.classList.add("out");if(isSafe()){t.classList.add("safe");t.textContent="SAFE"}else t.textContent="OUT";return}
     t.style.background=COLORS[c].v;if(OPT.cb){const sy=document.createElement("span");sy.className="sym";sy.textContent=COLORS[c].s;t.appendChild(sy)}
     if(my!=null)t.classList.add(c===my?"aim":"dim");
-    if(c===my&&me){const p=document.createElement("span");p.className="pay";p.textContent="+"+fmtN(me.bet*(G.phase==="bet"?ODDS[0]:oddsOf(me)));t.appendChild(p)}
+    if(c===my&&me){const p=document.createElement("span");p.className="pay";p.textContent="+"+fmtS(me.bet*(G.phase==="bet"?ODDS[0]:oddsOf(me)));if(p.textContent.length>5)p.classList.add("long");t.appendChild(p)}
     if(G.ups.includes(c)&&G.phase!=="bet"){const u=document.createElement("i");u.className="upb";u.textContent="UP";t.appendChild(u)}
     const w=whoOn(c).filter(p=>p!==me).map(p=>p.tag).join("");if(w){const s=document.createElement("span");s.className="who";s.textContent=w;t.appendChild(s)}
   });
@@ -1030,7 +1056,7 @@ function bulbTick(){BULBS.t++;const m=BULBS.mode,t=BULBS.t;
     else if(m==="check")on=(Math.floor(t/3)%2===0)===(i%2===0);
     else if(m==="out")on=t%6<3;
     else if(m==="safe")on=t%4<2;
-    const cls=on?"on "+m:"";if(b.className!==cls)b.className=cls})}
+    const cls=on?"on b-"+m:"";if(b.className!==cls)b.className=cls})}
 function bulbs(m,ms){BULBS.mode=m;clearTimeout(BULBS.back);
   if(ms)BULBS.back=setTimeout(()=>{BULBS.mode=G&&G.phase==="check"?"check":"idle"},ms)}
 
