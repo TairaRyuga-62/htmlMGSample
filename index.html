@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>メダルすごろく マルチ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+1p:wght@400;700;800&display=swap">
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<style>
+
+/* Layout: 上にステータス帯と手順バー、左に10×10外周のすごろく盤(中央が演出ステージ)、右に操作枠(ベット→走行→利確判断で中身が切り替わる)。単一のゲームセンター風ダーク */
+:root{
+  --bg:#14121c; --panel:#1f1c2b; --line:#36314a; --fg:#f1eefa; --muted:#a39dbb; --ink:#14121c;
+  --gold:#f7c948; --gold-d:#b8891a; --out:#6b6876; --out-fg:#e6e4ec;
+  --stock:#4fd6e8; --stock-d:#1d8796;
+  --c0:#ec4e5a; --c1:#3e8ef7; --c2:#f5c84c; --c3:#3fbf7f; --c4:#a970ff;
+  --display:"Dela Gothic One","M PLUS 1p",system-ui,sans-serif;
+  --body:"M PLUS 1p","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+  color-scheme:dark;
+}
+html,body{background:var(--bg);color:var(--fg)}
+body{font-family:var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 40px}
+.page{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+
+.status{display:flex;flex-wrap:wrap;gap:10px 28px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 16px}
+.stat{display:flex;flex-direction:column;line-height:1.1}
+.stat small{color:var(--muted);font-size:.7rem;letter-spacing:.08em}
+.stat b{font-family:var(--display);font-weight:400;font-size:1.4rem;font-variant-numeric:tabular-nums}
+.stat.medal b{color:var(--gold);font-size:1.7rem}
+.status .sp{flex:1}
+
+
+.callout{border:2px solid var(--stock-d);border-radius:12px;padding:12px 14px;background:rgba(79,214,232,.06);display:flex;flex-direction:column;gap:6px}
+.callout b{font-family:var(--display);font-weight:400;font-size:1.15rem;color:var(--stock);display:flex;align-items:center;gap:8px}
+.callout span{font-size:.8rem;color:var(--muted);line-height:1.55}
+.callout span strong{color:var(--fg)}
+.chip{display:inline-block;width:18px;height:18px;border-radius:4px;background:var(--line);border:2px solid var(--fg)}
+.upb{display:inline-block;font-style:normal;font-family:var(--display);font-size:.62rem;line-height:1;padding:3px 5px;border-radius:5px;background:var(--fg);color:var(--ink);vertical-align:middle}
+.tile .upb{position:absolute;bottom:2px;right:2px;font-size:clamp(.38rem,1.1vw,.6rem);padding:2px 3px;box-shadow:0 0 0 2px var(--ink)}
+.oddsbox{display:grid;grid-template-columns:1fr auto 1fr auto;gap:10px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.oddsbox div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.oddsbox small{font-size:.66rem;color:var(--muted);letter-spacing:.06em}
+.oddsbox b{font-family:var(--display);font-weight:400;font-size:1.5rem;font-variant-numeric:tabular-nums}
+.oddsbox b.now{color:var(--stock)}
+.oddsbox .arrow{color:var(--muted);font-size:1.1rem}
+.oddsbox .upc{align-items:center}
+.oddsbox .upc i{width:26px;height:26px;border-radius:6px;border:2px solid var(--fg)}
+.oddsbox.bump b.now{animation:bump .45s ease-out}
+.main{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:880px){.main{grid-template-columns:1fr}}
+
+.board{position:relative;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);gap:4px;aspect-ratio:1;width:100%;max-width:620px;margin:0 auto}
+.tile{border-radius:6px;position:relative;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 -4px 0 rgba(0,0,0,.25);transition:opacity .2s,transform .12s;font-family:var(--display);font-size:clamp(.45rem,1.5vw,.8rem);color:var(--c0)}
+.tile.dim{opacity:.5}
+.tile.aim{box-shadow:inset 0 -4px 0 rgba(0,0,0,.25),0 0 0 3px var(--fg),0 0 14px rgba(255,255,255,.35)}
+.tile.out{background:var(--out);color:var(--out-fg);background-image:repeating-linear-gradient(45deg,transparent 0 6px,rgba(0,0,0,.18) 6px 12px)}
+.tile.trail::before{content:"";position:absolute;width:22%;aspect-ratio:1;border-radius:50%;background:var(--fg);opacity:.85;box-shadow:0 0 0 2px var(--ink)}
+.tile .stepn{position:absolute;top:2px;left:4px;font-size:clamp(.45rem,1.4vw,.75rem);color:var(--ink);background:var(--fg);border-radius:4px;padding:0 3px;line-height:1.3}
+/* OUT演出 */
+.board.dead{filter:grayscale(1) brightness(.6);transition:filter .3s}
+.page.shake{animation:shake .5s cubic-bezier(.36,.07,.19,.97)}
+@keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(5px)}30%,50%,70%{transform:translateX(-10px)}40%,60%{transform:translateX(10px)}}
+.flashout{position:fixed;inset:0;pointer-events:none;z-index:15;background:radial-gradient(circle,rgba(230,228,236,.0) 20%,rgba(20,18,28,.85) 75%);opacity:0}
+.flashout.on{animation:fo 1.6s ease-out forwards}
+@keyframes fo{0%{opacity:0;background-color:rgba(255,255,255,.55)}8%{opacity:1;background-color:rgba(255,255,255,.35)}20%{background-color:transparent}75%{opacity:1}100%{opacity:0}}
+.banner.out{font-size:clamp(3.4rem,15vw,7.5rem);color:var(--out-fg)!important;letter-spacing:.06em;text-shadow:0 6px 0 #000,0 0 30px rgba(0,0,0,.8)}
+.wheel{width:min(100%,clamp(110px,26vw,170px));aspect-ratio:200/212}
+.wheel svg{width:100%;height:100%;display:block;overflow:visible}
+.tile.peek{transform:scale(1.15);z-index:2;box-shadow:0 0 0 4px var(--gold),0 0 18px var(--gold)}
+.tile.tease{animation:tease .45s ease-in-out}
+@keyframes tease{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+.tile.land{animation:land .5s ease-out}
+@keyframes land{0%{transform:scale(1)}35%{transform:scale(1.35);z-index:2;box-shadow:0 0 0 4px var(--fg)}100%{transform:scale(1)}}
+.koma{position:absolute;width:58%;aspect-ratio:1;border-radius:50%;background:var(--fg);border:3px solid var(--ink);box-shadow:0 3px 0 rgba(0,0,0,.5);z-index:3;display:flex;align-items:center;justify-content:center}
+.koma::after{content:"";width:40%;aspect-ratio:1;border-radius:50%;background:var(--gold)}
+.koma.hop{animation:hop .11s ease-out}
+@keyframes hop{0%{transform:translateY(0)}50%{transform:translateY(-45%) scale(1.08)}100%{transform:translateY(0)}}
+
+.stage{grid-column:2/10;grid-row:2/10;border-radius:12px;background:radial-gradient(circle at 50% 40%,#2a2540,var(--bg) 75%);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;overflow:hidden;position:relative;padding:8px}
+.cp{display:flex;gap:6px}
+.cp i{width:clamp(14px,3.4vw,22px);aspect-ratio:1;border-radius:50%;border:2px solid var(--line)}
+.cp i.on{background:var(--gold);border-color:var(--gold)}
+.hint{font-size:.82rem;text-align:center;max-width:28ch;line-height:1.5;color:var(--muted)}
+.banner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;font-family:var(--display);font-size:clamp(1.7rem,7vw,3.8rem);line-height:1.1;pointer-events:none;text-shadow:0 4px 0 rgba(0,0,0,.6);padding:0 8px;white-space:pre-line}
+.banner.show{animation:stamp var(--dur,.6s) cubic-bezier(.2,1.4,.4,1) forwards}
+@keyframes stamp{0%{transform:scale(2.4);opacity:0}25%{transform:scale(.92);opacity:1}35%{transform:scale(1.04)}80%{transform:scale(1);opacity:1}100%{transform:scale(1);opacity:0}}
+
+.side{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.side h2{margin:0;font-family:var(--display);font-weight:400;font-size:1.05rem}
+.box{display:flex;flex-direction:column;gap:14px}
+.label{font-size:.72rem;color:var(--muted);letter-spacing:.08em;margin-bottom:6px}
+button{font-family:var(--body);font-weight:700;cursor:pointer;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--fg);padding:8px 12px;font-size:.9rem}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+button:disabled{opacity:.35;cursor:not-allowed}
+.colors,.bets{display:flex;flex-wrap:wrap;gap:8px}
+.betin{display:flex;gap:6px;align-items:stretch;flex-wrap:wrap}
+.betin input{width:5.5em;font-family:var(--display);font-size:1.4rem;text-align:center;background:var(--bg);color:var(--gold);border:2px solid var(--gold-d);border-radius:10px;padding:4px 6px;font-variant-numeric:tabular-nums}
+.betin input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.betin button{min-width:44px}
+.preview{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;background:var(--bg);border:1px solid var(--stock-d);border-radius:10px;padding:10px 12px;font-size:.85rem;color:var(--muted)}
+.preview b{font-family:var(--display);font-weight:400;font-size:1.6rem;color:var(--stock);font-variant-numeric:tabular-nums}
+.tile .pay{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--display);font-size:clamp(.5rem,1.6vw,.85rem);color:var(--ink);background:var(--fg);border-radius:5px;padding:1px 4px;line-height:1.25;z-index:2;white-space:nowrap}
+.bigpay{display:flex;justify-content:space-between;align-items:center;gap:8px;border:2px solid var(--stock);border-radius:12px;padding:10px 14px}
+.bigpay span{font-size:.85rem;color:var(--fg);display:flex;align-items:center;gap:6px;font-weight:700}
+.bigpay b{font-family:var(--display);font-weight:400;font-size:2rem;color:var(--stock);font-variant-numeric:tabular-nums}
+.cbtn{width:44px;height:44px;padding:0;border-color:transparent}
+.cbtn[aria-pressed="true"]{border-color:var(--fg);box-shadow:0 0 0 3px var(--panel),0 0 0 5px var(--fg)}
+.big{font-family:var(--display);font-weight:400;font-size:1.3rem;padding:14px;background:var(--gold);color:#2a1d00;border-color:var(--gold-d);box-shadow:0 4px 0 var(--gold-d)}
+.big:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 var(--gold-d)}
+.safe{font-family:var(--display);font-weight:400;font-size:1.2rem;padding:14px;border-color:var(--c3);color:var(--c3)}
+.rules{font-size:.8rem;color:var(--muted);line-height:1.7;margin:0;padding-left:1.2em}
+.rules b{color:var(--fg)}
+
+.stock{text-align:center;display:flex;flex-direction:column;gap:4px;border:2px dashed var(--stock-d);border-radius:12px;padding:12px 10px;background:rgba(79,214,232,.06)}
+.stock small{font-size:.78rem;color:var(--stock);letter-spacing:.06em;font-weight:800}
+.stock b{font-family:var(--display);font-weight:400;font-size:clamp(2.4rem,8vw,3.6rem);line-height:1;color:var(--stock);text-shadow:0 4px 0 var(--stock-d);font-variant-numeric:tabular-nums}
+.stock span{font-size:.74rem;color:var(--muted);line-height:1.5}
+.stock span em{font-style:normal;color:var(--gold);font-weight:800}
+.stock span u{text-decoration:none;color:var(--out-fg);font-weight:800}
+.stat.pend b{color:var(--stock)}
+.stock.bump b{animation:bump .45s ease-out}
+@keyframes bump{0%{transform:scale(1.4)}100%{transform:scale(1)}}
+.row{display:flex;justify-content:space-between;align-items:baseline;font-size:.84rem;color:var(--muted)}
+.row b{color:var(--fg);font-variant-numeric:tabular-nums}
+.check{border:2px solid var(--gold);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px;background:#2a2312}
+.check h3{margin:0;font-family:var(--display);font-weight:400;font-size:1.25rem;color:var(--gold)}
+.check p{margin:0;font-size:.85rem;color:var(--muted);line-height:1.6}
+.check p b{color:var(--fg)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.last{font-size:.8rem;line-height:1.55;border-top:1px dashed var(--line);padding-top:10px;color:var(--muted);min-height:2.6em}
+.last b{color:var(--fg)}.last .hit{color:var(--gold)}.last .bad{color:var(--c0)}.last .ok{color:var(--c3)}
+.foot{display:flex;justify-content:flex-end}
+.foot button{padding:4px 10px;font-size:.76rem}
+
+.overlay{position:fixed;inset:0;background:rgba(10,8,16,.84);display:flex;align-items:center;justify-content:center;padding:20px;z-index:20}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;max-width:480px;width:100%;display:flex;flex-direction:column;gap:14px}
+.modal h2{font-family:var(--display);font-weight:400;margin:0;font-size:1.5rem}
+.modal p{margin:0;color:var(--muted);font-size:.9rem;line-height:1.7}
+.modal p b{color:var(--fg)}
+@media (prefers-reduced-motion:reduce){.banner.show,.koma.hop,.tile.land,.tile.tease,.stock.bump b{animation-duration:.01s}}
+
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+body{margin:0}
+.page,.side,.status{min-width:0}
+
+/* 3列:左プレイヤー、中央盤、右操作 */
+.main3{display:grid;grid-template-columns:230px minmax(0,1fr) 320px;gap:14px;align-items:start}
+@media (max-width:1100px){.main3{grid-template-columns:minmax(0,1fr) 320px}.players{grid-column:1/-1}}
+@media (max-width:760px){.main3{grid-template-columns:1fr}}
+.players{display:flex;flex-direction:column;gap:8px;min-width:0}
+@media (max-width:1100px){.players{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}}
+.pcard{background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;position:relative;min-width:0}
+.pcard.me{box-shadow:0 0 0 2px var(--fg)}
+.pcard.dead{opacity:.45}
+.pcard .top{display:flex;align-items:center;gap:8px;min-width:0}
+.pcard .top b{font-size:.92rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.pcard .col{width:22px;height:22px;border-radius:6px;border:2px solid var(--fg);flex:none;background:var(--line)}
+.pcard .st{margin-left:auto;font-size:.64rem;font-weight:800;padding:2px 7px;border-radius:99px;white-space:nowrap;background:var(--line)}
+.st.active{background:var(--gold);color:#2a1d00}.st.cashed{background:var(--c3);color:var(--ink)}.st.out{background:var(--out);color:var(--out-fg)}.st.dead{background:#000;color:var(--c0)}.st.ready{background:var(--c3);color:var(--ink)}
+.pcard .nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+.pcard .nums div{display:flex;flex-direction:column;line-height:1.15;min-width:0}
+.pcard .nums small{font-size:.6rem;color:var(--muted)}
+.pcard .nums b{font-family:var(--display);font-weight:400;font-size:1.05rem;font-variant-numeric:tabular-nums}
+.pcard .nums .m{color:var(--gold)}.pcard .nums .s{color:var(--stock)}
+.pcard .ch{display:flex;gap:4px;flex-wrap:wrap;min-height:4px}
+.pcard .ch span{width:24px;height:24px;display:block}
+.pcard .ch svg{width:100%;height:100%;border-radius:5px;display:block}
+.pcard .me-tag{font-size:.6rem;color:var(--muted)}
+.pcard.fire{animation:pfire .6s ease-out}
+@keyframes pfire{30%{transform:translateY(-4px);box-shadow:0 0 0 3px var(--gold),0 0 20px var(--gold)}}
+
+.topbar{display:flex;flex-wrap:wrap;gap:10px 24px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 16px}
+.topbar .stat b{font-size:1.3rem}
+.timer{flex:1;min-width:160px;display:flex;flex-direction:column;gap:4px}
+.timer .row{font-size:.76rem}
+.tbar{height:10px;border-radius:5px;background:var(--bg);border:1px solid var(--line);overflow:hidden}
+.tbar i{display:block;height:100%;background:var(--gold);width:0}
+.tbar.hurry i{background:var(--c0)}
+
+.boardwrap{position:relative;padding:8px;border-radius:18px;background:var(--panel);border:2px solid var(--line);width:100%;max-width:640px;margin:0 auto}
+.boardwrap .board{max-width:none}
+.boardwrap>.banner{z-index:6;font-size:clamp(1.4rem,5.5vw,3.4rem)}
+.stage{container-type:size;gap:4cqh;padding:4px}
+.wheel{width:auto;height:min(64cqh,82cqw);max-width:100%}
+.hint{font-size:clamp(.58rem,3.6cqw,.82rem);max-width:90%}
+.cp i{width:clamp(9px,4cqw,20px)}
+.tile.start-mark{outline:2px dashed var(--fg);outline-offset:-4px}
+.tile .who{position:absolute;bottom:1px;left:3px;font-size:clamp(.4rem,1.1vw,.6rem);color:var(--ink);font-weight:800}
+
+.side h2{display:flex;justify-content:space-between;align-items:baseline}
+.side h2 small{font-family:var(--body);font-size:.72rem;color:var(--muted)}
+.cbtn{position:relative}
+.cbtn .tk{position:absolute;inset:auto -4px -6px auto;background:var(--fg);color:var(--ink);font-size:.6rem;font-weight:800;border-radius:6px;padding:0 4px;max-width:40px;overflow:hidden;white-space:nowrap}
+.watch{border:2px dashed var(--line);border-radius:12px;padding:14px;text-align:center;color:var(--muted);font-size:.88rem;line-height:1.6}
+.watch b{display:block;font-family:var(--display);font-weight:400;font-size:1.3rem;color:var(--fg)}
+.lockd{font-size:.8rem;color:var(--c3);text-align:center;font-weight:800}
+.coin{position:fixed;top:-40px;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff7d1,var(--gold) 45%,var(--gold-d));border:2px solid #7a5a0e;pointer-events:none;z-index:16;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+.side .bigpay b{white-space:nowrap;font-size:1.6rem}.side .bigpay span{flex-wrap:wrap}
+.log2{font-size:.78rem;line-height:1.6;color:var(--muted);max-height:9.6em;overflow:auto;border-top:1px dashed var(--line);padding-top:8px}
+.log2 div:first-child{color:var(--fg)}
+
+/* ショップ(右枠内) */
+.offers{display:flex;flex-direction:column;gap:8px}
+.offer{border:1px solid var(--line);border-radius:12px;padding:10px;display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:8px 10px;align-items:center;background:var(--bg)}
+.offer svg{width:44px;height:44px;border-radius:9px;display:block}
+.offer b{font-size:.88rem;display:block}
+.offer small{font-size:.72rem;color:var(--muted);line-height:1.45;display:block}
+.offer button{font-family:var(--display);font-weight:400;padding:6px 10px}
+.offer.sold{opacity:.35}
+.kw{font-size:.6rem;padding:1px 6px;border-radius:99px;background:var(--line);color:var(--fg);font-weight:700;white-space:nowrap;margin-right:3px}
+.syn{font-size:.62rem;background:var(--gold);color:#2a1d00;font-weight:800;padding:1px 6px;border-radius:99px}
+
+/* ロビー */
+.lobby{max-width:520px}
+.lobby input[type=text]{font:inherit;font-size:1rem;padding:10px 12px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--fg);width:100%}
+.lobby .code{font-family:var(--display);font-size:2.4rem;letter-spacing:.2em;color:var(--gold);text-align:center}
+.lobby .plist{display:flex;flex-direction:column;gap:6px}
+.lobby .plist div{display:flex;justify-content:space-between;border-bottom:1px dashed var(--line);padding:4px 0;font-size:.9rem}
+.lobby .err{color:var(--c0);font-size:.85rem;min-height:1.2em}
+.lobby .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lobby .or{text-align:center;color:var(--muted);font-size:.8rem}
+.rank{display:flex;flex-direction:column;gap:6px}
+.rank div{display:flex;justify-content:space-between;font-size:.95rem;border-bottom:1px dashed var(--line);padding:6px 0}
+.rank div:first-child{color:var(--gold);font-family:var(--display);font-size:1.15rem}
+</style>
+</head>
+<body>
+<div class="page" id="page">
+  <div class="topbar">
+    <div class="stat"><small>ラウンド</small><b id="tRound">-</b></div>
+    <div class="stat"><small>ルーレット</small><b id="tSpin">-</b></div>
+    <div class="stat"><small>オッズ</small><b id="tOdds" style="color:var(--stock)">×5</b></div>
+    <div class="stat"><small>UPの色</small><b id="tUp" style="display:flex;gap:4px;min-height:1.3rem"></b></div>
+    <div class="timer"><div class="row" style="display:flex;justify-content:space-between;color:var(--muted)"><span id="tPhase">待機中</span><span id="tLeft"></span></div><div class="tbar" id="tbar"><i id="tfill"></i></div></div>
+    <div class="stat"><small>部屋</small><b id="tRoom" style="color:var(--gold)">-</b></div>
+  </div>
+
+  <div class="main3">
+    <div class="players" id="players"></div>
+
+    <div class="boardwrap" id="boardwrap">
+      <div class="board" id="board">
+        <div class="stage">
+          <div class="wheel" id="wheel"></div>
+          <div class="cp" id="cp"></div>
+          <div class="hint" id="hint"></div>
+        </div>
+      </div>
+      <div class="banner" id="banner"></div>
+    </div>
+
+    <div class="side" id="side">
+      <div id="panel"></div>
+      <div class="log2" id="log"></div>
+      <div class="foot"><button id="snd" aria-pressed="true">音:ON</button></div>
+    </div>
+  </div>
+</div>
+<div class="flashout" id="flashout"></div>
+<div class="overlay" id="overlay"><div class="modal lobby" id="modal"></div></div>
+
+<script>
+/* =========================================================
+   メダルすごろく マルチ
+   ホストのブラウザがゲームを進め、参加者はPeerJSでつながって操作を送る。
+   ========================================================= */
+const COLORS=[{n:"赤",v:"var(--c0)"},{n:"青",v:"var(--c1)"},{n:"黄",v:"var(--c2)"},{n:"緑",v:"var(--c3)"},{n:"紫",v:"var(--c4)"}];
+const OUT=5, SIDE=10, ODDS=[5,6,8,10,13,16,20,25,32,40,50,64];
+const MAX_ROUND=8, MAX_SPIN=20, START_MEDALS=50, MAX_PLAYERS=5;
+const T_BET=20000, T_CHECK=10000, T_SHOP=30000;
+const $=id=>document.getElementById(id);
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const PATH=[];
+for(let c=0;c<SIDE;c++)PATH.push([0,c]);
+for(let r=1;r<SIDE;r++)PATH.push([r,SIDE-1]);
+for(let c=SIDE-2;c>=0;c--)PATH.push([SIDE-1,c]);
+for(let r=SIDE-2;r>=1;r--)PATH.push([r,0]);
+const N=PATH.length;
+
+/* ================= お守り(盤を書き換えるもの・共有のルーレットを変えるものは除外) ================= */
+const TAGNAME={pay:"配当",risk:"リスク",board:"盤",grow:"育つ",rule:"ルール"};
+const TAGCOL={pay:"#1d8796",risk:"#b8323d",board:"#2c9a63",grow:"#b8891a",rule:"#7a4fd0"};
+const CHARMS={
+  longshot:{n:"遠投の手袋",ic:"遠",tag:"pay",kw:["大きい目"],price:35,d:"5か6の目で自分の色に止まると配当×2",pay:(p,c)=>c.d>=5?2:0},
+  cliff:{n:"崖っぷち",ic:"崖",tag:"pay",kw:["OUT"],price:40,d:"OUTのとなりにある自分の色マスに止まると配当×3",pay:(p,c)=>(G.board[(c.i+1)%N]===OUT||G.board[(c.i-1+N)%N]===OUT)?3:0},
+  thrift:{n:"倹約家",ic:"倹",tag:"pay",kw:["賭け"],price:30,d:"賭けが5枚以下なら配当×2.5",pay:p=>p.bet<=5?2.5:0},
+  whale:{n:"大口",ic:"大",tag:"pay",kw:["賭け"],price:40,d:"賭けが20枚以上なら配当×1.5。40枚以上なら×2",pay:p=>p.bet>=40?2:p.bet>=20?1.5:0},
+  heat:{n:"熱くなる",ic:"熱",tag:"grow",kw:["当たり"],price:45,d:"自分の色に止まるたび、このラウンド中の自分のオッズ+2",after:p=>{p.heat+=2;return "オッズ+2"}},
+  combo:{n:"連打",ic:"連",tag:"grow",kw:["当たり"],price:45,d:"このラウンドで自分の色に止まった回数ぶん、配当に+賭け×回数×2",add:p=>p.bet*p.hits*2},
+  piggy:{n:"貯金箱",ic:"貯",tag:"grow",kw:["利確"],price:40,d:"利確するたびに中身が+8枚。利確のとき中身もまとめてもらえる",cash:p=>{p.piggy=(p.piggy||0)+8;return p.piggy}},
+  nerve:{n:"度胸試し",ic:"胆",tag:"grow",kw:["利確"],price:55,d:"利確チャンスで「続ける」を選ぶたび、未確定メダル×1.3",cont:p=>{p.stock=Math.floor(p.stock*1.3);return "未確定×1.3"}},
+  early:{n:"早じまい",ic:"早",tag:"rule",kw:["利確"],price:40,d:"自分だけ、利確チャンスが3回ごとに来る",cp:3},
+  doll:{n:"身代わり人形",ic:"身",tag:"risk",kw:["OUT","OUT無効"],price:45,d:"ラウンドごとに、最初の2回のOUTを自分だけ無効にして参加し続けられる"},
+  eater:{n:"OUT喰い",ic:"喰",tag:"grow",kw:["OUT無効"],price:45,d:"自分のOUTが無効になるたび、自分のオッズが2段上がる",blocked:p=>{p.ob+=2;return "オッズ2段UP"}},
+  fortune:{n:"厄落とし",ic:"厄",tag:"grow",kw:["OUT無効"],price:50,d:"自分のOUTが無効になるたび、未確定メダル×1.5",blocked:p=>{p.stock=Math.floor(p.stock*1.5);return "未確定×1.5"}},
+  insure:{n:"保険証",ic:"保",tag:"risk",kw:["OUT"],price:35,d:"OUTで消える未確定メダルのうち40%が戻ってくる",refund:.4},
+  lap:{n:"周回ボーナス",ic:"周",tag:"board",kw:["周回"],price:45,d:"STARTを通過するたび、自分のオッズが1段上がる",lap:p=>{p.ob+=1;return "オッズ1段UP"}},
+  marathon:{n:"マラソン",ic:"走",tag:"grow",kw:["周回","利確"],price:45,d:"利確のとき、このラウンドで回った周数×賭け×10枚を追加",cash:p=>G.laps*p.bet*10},
+  rush:{n:"ゴールドラッシュ",ic:"金",tag:"pay",kw:["UP"],price:40,d:"UPの色に止まると、賭け×自分のオッズの半分が未確定に入る",upHit:p=>{const w=Math.floor(p.bet*oddsOf(p)/2);p.stock+=w;return `+${w}`}},
+};
+function icon(id){const d=CHARMS[id],col=TAGCOL[d.tag];
+  return `<svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="12" style="fill:${col}"/>
+    <rect x="5" y="5" width="54" height="54" rx="9" fill="rgba(255,255,255,.12)"/>
+    <text x="32" y="35" text-anchor="middle" dominant-baseline="central" font-family="Dela Gothic One, sans-serif" font-size="30" fill="#fff" stroke="rgba(0,0,0,.35)" stroke-width="3" paint-order="stroke">${d.ic}</text></svg>`}
+const pHas=(p,id)=>p.charms.includes(id);
+const pEach=(p,hook,fn)=>p.charms.forEach(id=>{const d=CHARMS[id];if(d[hook])fn(d,id)});
+const cpOf=p=>Math.min(5,...p.charms.map(id=>CHARMS[id].cp||5));
+const oddsOf=p=>ODDS[Math.min(ODDS.length-1,G.oi+p.ob)]+p.heat;
+
+/* ================= 音 ================= */
+let AC=null,soundOn=true;
+function beep(f,d=.06,type="square",vol=.05){if(!soundOn)return;
+  try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.value=f;
+    g.gain.setValueAtTime(vol,AC.currentTime);g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d);
+    o.connect(g).connect(AC.destination);o.start();o.stop(AC.currentTime+d);}catch(e){}}
+const jingle=(notes,step=70)=>notes.forEach((f,i)=>setTimeout(()=>beep(f,.12,"square",.06),i*step));
+
+/* =========================================================
+   通信
+   ========================================================= */
+const NET={host:false,peer:null,conns:new Map(),hostConn:null,me:null,code:null,offline:false};
+function genCode(){const a="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let s="";for(let i=0;i<4;i++)s+=a[Math.random()*a.length|0];return s}
+const peerId=code=>"medal-sugoroku-"+code;
+
+function hostCreate(name,offline){
+  NET.host=true;NET.me="host";NET.offline=!!offline;
+  G=newGame();addPlayer("host",name,false);
+  if(offline){NET.code="OFF";lobbyHost();return}
+  const tryOpen=()=>{NET.code=genCode();
+    const peer=new Peer(peerId(NET.code));NET.peer=peer;
+    peer.on("open",()=>lobbyHost());
+    peer.on("error",e=>{if(e.type==="unavailable-id"){peer.destroy();tryOpen()}else lobbyError("通信エラー:"+e.type)});
+    peer.on("connection",conn=>{
+      conn.on("data",msg=>hostRecv(conn,msg));
+      conn.on("close",()=>{const p=G.players.find(x=>x.id===conn.peer);if(p){p.online=false;pushState()}NET.conns.delete(conn.peer)});
+    });
+  };
+  tryOpen();
+}
+function hostRecv(conn,msg){
+  if(msg.t==="join"){
+    if(G.phase!=="lobby"){conn.send({t:"reject",why:"ゲームはもう始まっています"});return}
+    if(G.players.length>=MAX_PLAYERS){conn.send({t:"reject",why:"満員です(最大5人)"});return}
+    NET.conns.set(conn.peer,conn);addPlayer(conn.peer,msg.name,false);
+    conn.send({t:"welcome",id:conn.peer,code:NET.code});pushState();lobbyHost();return;
+  }
+  if(msg.t==="act")hostAct(conn.peer,msg);
+}
+function clientJoin(name,code){
+  NET.host=false;NET.code=code;
+  const peer=new Peer();NET.peer=peer;
+  peer.on("open",()=>{
+    const conn=peer.connect(peerId(code),{reliable:true});NET.hostConn=conn;
+    conn.on("open",()=>conn.send({t:"join",name}));
+    conn.on("data",clientRecv);
+    conn.on("close",()=>showModal(`<h2>接続が切れました</h2><p>ホストがページを閉じたか、回線が切れました。</p><button class="big" onclick="location.reload()">最初に戻る</button>`));
+    setTimeout(()=>{if(!NET.me)lobbyError("部屋が見つかりません。コードを確認してください")},8000);
+  });
+  peer.on("error",e=>lobbyError(e.type==="peer-unavailable"?"部屋が見つかりません。コードを確認してください":"通信エラー:"+e.type));
+}
+function clientRecv(msg){
+  if(msg.t==="welcome"){NET.me=msg.id;return}
+  if(msg.t==="reject"){lobbyError(msg.why);return}
+  if(msg.t==="state"){G=msg.s;G._recv=Date.now();if(G.phase==="lobby")lobbyGuest();else hideModal();view();return}
+  if(msg.t==="ev")playEv(msg.ev);
+}
+function send(a){if(NET.host)hostAct(NET.me,a);else NET.hostConn&&NET.hostConn.open&&NET.hostConn.send({t:"act",...a})}
+function pushState(){
+  G.left=G.deadline?Math.max(0,G.deadline-Date.now()):0;
+  const snap=JSON.parse(JSON.stringify(G));
+  NET.conns.forEach(c=>{if(c.open)c.send({t:"state",s:snap})});
+  G._recv=Date.now();view();
+}
+function bcastEv(ev){NET.conns.forEach(c=>{if(c.open)c.send({t:"ev",ev})});playEv(ev)}
+
+/* =========================================================
+   ゲーム状態(ホストが持つ。参加者はコピーを受け取って表示するだけ)
+   ========================================================= */
+let G;
+function newGame(){return {phase:"lobby",round:0,spin:0,board:newBoard(),pos:0,oi:0,ups:[],laps:0,players:[],deadline:0,left:0,log:[],winner:null,ranking:null}}
+function newBoard(){
+  for(let t=0;t<5000;t++){
+    const a=[];for(let c=0;c<6;c++)for(let k=0;k<6;k++)a.push(c);
+    shuffle(a);if(a[0]!==OUT&&a.every((c,i)=>c!==a[(i+1)%N]))return a;
+  }
+}
+function addPlayer(id,name,bot){
+  name=(name||"プレイヤー").slice(0,10);
+  let tag=name[0];if(G.players.some(x=>x.tag===tag))tag=name[0]+(G.players.length+1);
+  G.players.push({id,name,tag,bot,online:true,alive:true,medals:START_MEDALS,charms:[],
+    color:null,want:null,bet:5,locked:false,stock:0,status:"wait",hits:0,heat:0,ob:0,dollLeft:0,piggy:0,
+    deciding:false,decision:null,offers:[],reroll:5,ready:false,lastGain:0});
+}
+const P=id=>G.players.find(p=>p.id===id);
+const alivePs=()=>G.players.filter(p=>p.alive);
+const activePs=()=>G.players.filter(p=>p.alive&&p.status==="active");
+function log(t){G.log.unshift(t);G.log=G.log.slice(0,40)}
+function setDeadline(ms){G.deadline=ms?Date.now()+ms:0}
+function newUps(){const pool=shuffle([0,1,2,3,4].filter(c=>!G.ups.includes(c)));G.ups=pool.slice(0,1)}
+
+/* ---------- ホストの操作受付 ---------- */
+function hostAct(pid,a){
+  const p=P(pid);if(!p)return;
+  if(G.phase==="bet"&&p.alive&&!p.locked){
+    if(a.a==="pick"){if(a.color!=null)p.want=a.color;if(a.bet!=null)p.bet=Math.max(1,Math.min(p.medals,Math.floor(a.bet)||1));pushState()}
+    if(a.a==="lock"&&p.want!=null){p.locked=true;pushState();if(alivePs().every(x=>x.locked))wake()}
+  }
+  if(G.phase==="check"&&p.deciding&&a.a==="decide"){p.decision=a.v;p.deciding=false;pushState();if(!G.players.some(x=>x.deciding))wake()}
+  if(G.phase==="shop"&&p.alive&&!p.ready){
+    if(a.a==="buy"){const o=p.offers[a.k];if(o&&!o.sold&&p.medals>=o.price&&p.charms.length<5){p.medals-=o.price;o.sold=true;p.charms.push(o.id);if(o.id==="doll")p.dollLeft=2}}
+    if(a.a==="sell"){const id=p.charms[a.k];if(id){p.charms.splice(a.k,1);p.medals+=Math.floor(CHARMS[id].price/2)}}
+    if(a.a==="reroll"&&p.medals>=p.reroll){p.medals-=p.reroll;p.reroll+=3;rollOffers(p)}
+    if(a.a==="ready")p.ready=true;
+    pushState();if(alivePs().every(x=>x.ready))wake();
+  }
+  if(G.phase==="lobby"&&NET.host&&pid===NET.me){
+    if(a.a==="bot"&&G.players.length<MAX_PLAYERS){addPlayer("bot"+Math.random().toString(36).slice(2,7),"CPU"+(G.players.filter(x=>x.bot).length+1),true);pushState();lobbyHost()}
+    if(a.a==="start")runGame();
+  }
+}
+/* 待ち:締め切りか、全員の入力がそろったら進む */
+let wakeFn=null;
+function wake(){if(wakeFn){const f=wakeFn;wakeFn=null;f()}}
+function waitPhase(ms){return new Promise(res=>{setDeadline(ms);pushState();const t=setTimeout(()=>{wakeFn=null;res()},ms);wakeFn=()=>{clearTimeout(t);res()}})}
+
+/* ---------- CPU ---------- */
+function botThink(){
+  G.players.filter(p=>p.bot&&p.alive).forEach(p=>{
+    const later=(fn)=>setTimeout(fn,800+Math.random()*2500);
+    if(G.phase==="bet"&&!p.locked)later(()=>{if(G.phase!=="bet"||p.locked)return;
+      const taken=G.players.filter(x=>x!==p&&x.want!=null).map(x=>x.want);
+      const free=[0,1,2,3,4].filter(c=>!taken.includes(c));
+      p.want=Math.random()<.8&&free.length?free[Math.random()*free.length|0]:Math.random()*5|0;
+      p.bet=Math.max(1,Math.min(p.medals,Math.round(p.medals*(.1+Math.random()*.25))));
+      hostAct(p.id,{a:"lock"})});
+    if(G.phase==="check"&&p.deciding)later(()=>{if(!p.deciding)return;
+      const v=p.stock>=p.bet*8||(p.stock>0&&Math.random()<.4)?"cash":"cont";hostAct(p.id,{a:"decide",v})});
+    if(G.phase==="shop"&&!p.ready)later(()=>{
+      const k=p.offers.findIndex(o=>!o.sold&&o.price<=p.medals*.4);if(k>=0&&Math.random()<.6)hostAct(p.id,{a:"buy",k});
+      hostAct(p.id,{a:"ready"})});
+  });
+}
+
+/* ---------- 進行 ---------- */
+async function runGame(){
+  G.players.forEach(p=>{p.status="wait"});
+  for(G.round=1;G.round<=MAX_ROUND;G.round++){
+    await betPhase();
+    await resolveColors();
+    await spinPhase();
+    const over=roundEnd();
+    if(over)return;
+    if(G.round<MAX_ROUND)await shopPhase();
+  }
+  finish("最大ラウンド終了");
+}
+async function betPhase(){
+  G.phase="bet";G.spin=0;G.oi=0;G.laps=0;G.ups=[];
+  alivePs().forEach(p=>{p.locked=false;p.want=p.color;p.color=null;p.status="wait";p.stock=0;p.hits=0;p.heat=0;p.ob=0;
+    p.dollLeft=pHas(p,"doll")?2:0;p.bet=Math.max(1,Math.min(p.bet,p.medals));p.lastGain=0});
+  log(`ラウンド${G.round}:色と賭けを選ぶ`);
+  bcastEv({k:"say",text:`ラウンド${G.round}`,color:"var(--gold)",ms:1100});
+  botThink();
+  await waitPhase(T_BET);
+  // 時間切れの人は自動で決める
+  alivePs().forEach(p=>{if(p.want==null)p.want=Math.random()*5|0;p.locked=true;p.bet=Math.max(1,Math.min(p.bet,p.medals))});
+}
+async function resolveColors(){
+  G.phase="resolve";setDeadline(0);
+  const ps=alivePs(),groups={};
+  ps.forEach(p=>{(groups[p.want]=groups[p.want]||[]).push(p)});
+  const fixed=[];
+  for(const c of Object.keys(groups).map(Number)){
+    const g=groups[c];
+    if(g.length===1){g[0].color=c;fixed.push(c);continue}
+    const win=g[Math.random()*g.length|0];win.color=c;fixed.push(c);
+    bcastEv({k:"dup",color:c,names:g.map(x=>x.name),winner:win.name});
+    log(`${COLORS[c].n}がかぶった → ルーレットで ${win.name} に決定`);
+    await wait(2600);
+  }
+  ps.filter(p=>p.color==null).forEach(p=>{
+    const free=shuffle([0,1,2,3,4].filter(c=>!ps.some(x=>x.color===c)));p.color=free[0];
+    log(`${p.name} は ${COLORS[p.color].n} になった`);
+  });
+  ps.forEach(p=>{p.medals-=p.bet;p.status="active"});
+  newUps();pushState();
+  bcastEv({k:"say",text:"スタート!!",color:"var(--gold)",ms:800});await wait(900);
+}
+async function spinPhase(){
+  G.phase="run";
+  for(G.spin=1;G.spin<=MAX_SPIN;G.spin++){
+    if(!activePs().length)break;
+    setDeadline(0);pushState();
+    const d=1+(Math.random()*6|0),a=5+Math.random()*50,dur=2000+Math.random()*700;
+    bcastEv({k:"spin",d,a,dur,from:G.pos});
+    await wait(dur+520+d*105+300);
+    let laps=0;for(let s=1;s<=d;s++){G.pos=(G.pos+1)%N;if(G.pos===0)laps++}
+    G.laps+=laps;
+    landing(d,laps);
+    pushState();
+    await wait(1500);
+    if(!activePs().length)break;
+    if(G.spin===MAX_SPIN){ // 20回目:残っている人は自動で利確
+      activePs().forEach(p=>doCash(p,"20回到達で自動利確"));pushState();
+      bcastEv({k:"say",text:"20回終了!\n自動で利確",color:"var(--c3)",ms:1200});await wait(1300);break;
+    }
+    const due=activePs().filter(p=>G.spin%cpOf(p)===0);
+    if(due.length){
+      G.phase="check";due.forEach(p=>{p.deciding=true;p.decision=null});
+      botThink();
+      await waitPhase(T_CHECK);
+      due.forEach(p=>{if(p.decision==="cash")doCash(p);else doCont(p);p.deciding=false});
+      G.phase="run";pushState();await wait(700);
+    }
+  }
+  G.phase="run";setDeadline(0);pushState();
+}
+function landing(d,laps){
+  const i=G.pos,c=G.board[i],res=[];let upHit=false;
+  activePs().forEach(p=>{
+    for(let k=0;k<laps;k++)pEach(p,"lap",(df)=>res.push({id:p.id,t:`${df.n}:${df.lap(p)}`}));
+    if(c===OUT){
+      if(p.dollLeft>0){p.dollLeft--;const notes=[];pEach(p,"blocked",df=>notes.push(`${df.n}:${df.blocked(p)}`));
+        res.push({id:p.id,t:`身代わり人形でOUTを防いだ${notes.length?"(" + notes.join("、")+")":""}`,block:true});return}
+      const rf=Math.max(0,...p.charms.map(id=>CHARMS[id].refund||0)),back=Math.floor(p.stock*rf);
+      res.push({id:p.id,t:`OUT:未確定 ${p.stock}枚が消えた${back?`(保険で${back}枚戻った)`:""}`,lost:p.stock,out:true});
+      p.medals+=back;p.stock=0;p.status="out";return;
+    }
+    if(c===p.color){
+      p.hits++;let mul=1,add=0,notes=[];const ctx={d,i};
+      pEach(p,"pay",df=>{const m=df.pay(p,ctx);if(m){mul*=m;notes.push(`${df.n}×${m}`)}});
+      pEach(p,"add",df=>{const v=df.add(p);if(v){add+=v;notes.push(`${df.n}+${v}`)}});
+      const w=Math.floor(p.bet*oddsOf(p)*mul)+add;p.stock+=w;p.lastGain=w;
+      pEach(p,"after",df=>notes.push(`${df.n}:${df.after(p)}`));
+      res.push({id:p.id,t:`当たり +${w}(${p.bet}×${oddsOf(p)}${notes.length?"、"+notes.join("、"):""})`,gain:w});
+    }
+    if(G.ups.includes(c))pEach(p,"upHit",df=>res.push({id:p.id,t:`${df.n} ${df.upHit(p)}`}));
+  });
+  if(c!==OUT&&G.ups.includes(c)){upHit=true;G.oi=Math.min(ODDS.length-1,G.oi+1);newUps()}
+  res.forEach(r=>log(`${P(r.id).name}:${r.t}`));
+  if(upHit)log(`UPの色に止まった → 全員のオッズUP`);
+  if(c===OUT&&!res.some(r=>r.out||r.block))log("OUT(参加中の人はいない)");
+  bcastEv({k:"land",c,d,res,upHit});
+}
+function doCash(p,why){
+  let g=p.stock,notes=[];pEach(p,"cash",df=>{const v=df.cash(p);if(v){g+=v;notes.push(`${df.n}+${v}`)}});
+  p.medals+=g;p.status="cashed";p.lastGain=g;
+  log(`${p.name}:${why||"利確"} +${g}枚${notes.length?"("+notes.join("、")+")":""}`);
+  bcastEv({k:"cash",id:p.id,g});
+  p.stock=0;
+}
+function doCont(p){pEach(p,"cont",df=>log(`${p.name}:${df.n} ${df.cont(p)}`))}
+function roundEnd(){
+  G.phase="roundEnd";setDeadline(0);G.oi=0;G.ups=[];G.spin=0;
+  alivePs().forEach(p=>{p.stock=0;if(p.medals<=0){p.alive=false;p.status="dead";log(`${p.name} はメダルが尽きて脱落`)}});
+  const alive=alivePs();
+  pushState();
+  if(G.players.length>1&&alive.length<=1){finish(alive.length?"最後の1人":"全員脱落");return true}
+  if(G.players.length===1&&!alive.length){finish("脱落");return true}
+  if(G.round>=MAX_ROUND){finish("8ラウンド生き残った");return true}
+  return false;
+}
+function rollOffers(p){
+  const pool=shuffle(Object.keys(CHARMS).filter(id=>!p.charms.includes(id))).slice(0,3);
+  p.offers=pool.map(id=>({id,sold:false,price:Math.round(CHARMS[id].price*(1+(G.round-1)*.15))}));
+}
+async function shopPhase(){
+  G.phase="shop";
+  alivePs().forEach(p=>{p.ready=false;p.reroll=5;rollOffers(p);p.status="shop"});
+  log("ショップ:お守りを買える");
+  botThink();
+  await waitPhase(T_SHOP);
+}
+function finish(why){
+  G.phase="end";setDeadline(0);
+  const order=[...G.players].sort((a,b)=>(b.alive-a.alive)||(b.medals-a.medals));
+  G.ranking=order.map(p=>({name:p.name,medals:p.medals,alive:p.alive}));
+  G.winner=order[0].name;log(`勝者:${G.winner}(${why})`);
+  pushState();bcastEv({k:"say",text:`勝者\n${G.winner}`,color:"var(--gold)",ms:1800});
+}
+
+/* =========================================================
+   表示(ホストも参加者も同じ)
+   ========================================================= */
+let tiles=[],koma,V={pos:0,rot:0,anim:false};
+function buildBoard(){
+  const b=$("board");tiles.forEach(t=>t.remove());tiles=[];
+  PATH.forEach(([r,c])=>{const t=document.createElement("div");t.className="tile";t.style.gridRow=r+1;t.style.gridColumn=c+1;b.appendChild(t);tiles.push(t)});
+  koma=document.createElement("div");koma.className="koma";
+}
+const meP=()=>G&&G.players.find(p=>p.id===NET.me);
+const whoOn=c=>G.players.filter(p=>p.alive&&(p.color===c||(G.phase==="bet"&&p.color==null&&p.want===c)));
+function paintBoard(){
+  if(!G)return;const me=meP(),my=me&&me.alive&&me.status!=="out"&&me.status!=="cashed"?(me.color??me.want):null;
+  tiles.forEach((t,i)=>{const c=G.board[i];t.className="tile";t.textContent="";t.style.background="";
+    if(i===0)t.classList.add("start-mark");
+    if(c===OUT){t.classList.add("out");t.textContent="OUT";return}
+    t.style.background=COLORS[c].v;
+    if(my!=null)t.classList.add(c===my?"aim":"dim");
+    if(c===my&&me){const p=document.createElement("span");p.className="pay";p.textContent="+"+me.bet*(G.phase==="bet"?ODDS[0]:oddsOf(me));t.appendChild(p)}
+    if(G.ups.includes(c)&&G.phase!=="bet"){const u=document.createElement("i");u.className="upb";u.textContent="UP";t.appendChild(u)}
+    const w=whoOn(c).filter(p=>p!==me).map(p=>p.tag).join("");if(w){const s=document.createElement("span");s.className="who";s.textContent=w;t.appendChild(s)}
+  });
+  if(!V.anim){V.pos=G.pos;tiles.forEach(t=>t.querySelectorAll(".stepn").forEach(n=>n.remove()));
+    for(let k=1;k<=6;k++){const sn=document.createElement("span");sn.className="stepn";sn.textContent=k;tiles[(V.pos+k)%N].appendChild(sn)}}
+  tiles[V.pos].appendChild(koma);
+  if(!V.anim)drawWheel();
+}
+function drawWheel(){
+  const pt=(r,a)=>`${(r*Math.sin(a*Math.PI/180)).toFixed(2)} ${(-r*Math.cos(a*Math.PI/180)).toFixed(2)}`;
+  const me=meP(),my=me?(me.color??me.want):null;let g="";
+  for(let k=1;k<=6;k++){
+    const i=(V.pos+k)%N,c=G.board[i],a0=(k-1)*60,a1=k*60,am=a0+30;
+    g+=`<path d="M0 0 L${pt(92,a0)} A92 92 0 0 1 ${pt(92,a1)}Z" fill="${c===OUT?"var(--out)":COLORS[c].v}" stroke="var(--ink)" stroke-width="3"/>`;
+    if(c!==OUT&&c===my)g+=`<path d="M${pt(86,a0+4)} A86 86 0 0 1 ${pt(86,a1-4)}" fill="none" stroke="var(--fg)" stroke-width="6" stroke-linecap="round"/>`;
+    const [x,y]=pt(62,am).split(" ");
+    g+=`<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-family="Dela Gothic One, sans-serif" font-size="${c===OUT?17:26}" fill="${c===OUT?"var(--out-fg)":"var(--ink)"}" transform="rotate(${am} ${x} ${y})">${c===OUT?"OUT":k}</text>`;
+    if(c!==OUT){const names=whoOn(c).map(p=>p.tag).join("");if(names){const [x2,y2]=pt(34,am).split(" ");
+      g+=`<text x="${x2}" y="${y2}" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="800" fill="var(--fg)" stroke="var(--ink)" stroke-width="3" paint-order="stroke" transform="rotate(${am} ${x2} ${y2})">${esc(names)}</text>`}}
+  }
+  $("wheel").innerHTML=`<svg viewBox="-100 -112 200 212" aria-label="ルーレット"><g id="wg" transform="rotate(${V.rot})">${g}</g>
+    <circle r="22" fill="var(--panel)" stroke="var(--ink)" stroke-width="3"/>
+    <text id="wnum" y="1" text-anchor="middle" dominant-baseline="central" font-family="Dela Gothic One, sans-serif" font-size="22" fill="var(--fg)">?</text>
+    <path d="M-11 -110 L11 -110 L0 -88Z" fill="var(--gold)" stroke="var(--ink)" stroke-width="3"/></svg>`;
+}
+async function say(text,color,ms=600){const el=$("banner");
+  el.style.setProperty("--dur",ms+"ms");el.style.color=color||"var(--fg)";
+  el.className="banner";void el.offsetWidth;el.textContent=text;el.classList.add("show");await wait(ms)}
+function coins(n){if(reduced)return;n=Math.min(60,n);
+  for(let k=0;k<n;k++){const c=document.createElement("div");c.className="coin";c.style.left=(Math.random()*100)+"vw";
+    const dur=1.2+Math.random()*1.3;c.style.animationDuration=dur+"s";c.style.animationDelay=(Math.random()*.5)+"s";
+    document.body.appendChild(c);setTimeout(()=>c.remove(),(dur+.6)*1000)}}
+function firePlayer(id){const el=document.querySelector(`.pcard[data-id="${CSS.escape(id)}"]`);if(el){el.classList.remove("fire");void el.offsetWidth;el.classList.add("fire")}}
+
+/* ---------- イベント演出 ---------- */
+const segAt=R=>Math.floor((((-R)%360)+360)%360/60)+1;
+async function playEv(ev){
+  if(ev.k==="say"){say(ev.text,ev.color,ev.ms);if(ev.text.startsWith("ラウンド"))jingle([523,659,784,1047]);return}
+  if(ev.k==="dup"){
+    beep(500,.1);const end=Date.now()+1700;let k=0;
+    while(Date.now()<end){say(`${COLORS[ev.color].n}がかぶった!\n${ev.names[k%ev.names.length]}`,COLORS[ev.color].v,200);beep(700+(k%2)*200,.03);k++;await wait(130)}
+    jingle([784,1047,1319]);say(`${COLORS[ev.color].n}は\n${ev.winner}!`,COLORS[ev.color].v,900);return;
+  }
+  if(ev.k==="spin"){
+    V.anim=true;V.pos=ev.from;
+    tiles.forEach(t=>{t.classList.remove("trail","peek");t.querySelectorAll(".stepn").forEach(n=>n.remove())});
+    drawWheel();
+    await new Promise(res=>{
+      const R0=V.rot,base=R0-360*4,Rf=base-((((base+(ev.d-1)*60+ev.a)%360)+360)%360);
+      const t0=performance.now();let last=0;const wg=$("wg"),wn=$("wnum");
+      function f(now){const p=Math.min(1,(now-t0)/ev.dur),e=1-Math.pow(1-p,4),R=R0+(Rf-R0)*e;
+        wg.setAttribute("transform",`rotate(${R})`);const k=segAt(R);
+        if(k!==last){last=k;wn.textContent=k;tiles.forEach(t=>t.classList.remove("peek"));tiles[(V.pos+k)%N].classList.add("peek");
+          const c=G.board[(V.pos+k)%N],me=meP();beep(c===OUT?260:me&&c===me.color?900:620,.03,"square",.04)}
+        if(p<1)requestAnimationFrame(f);else{V.rot=Rf%360;res()}}
+      requestAnimationFrame(f)});
+    tiles.forEach(t=>t.classList.remove("peek"));beep(1200,.1,"square",.06);
+    await say(`${ev.d}!!`,"var(--fg)",480);
+    for(let s=1;s<=ev.d;s++){tiles[V.pos].classList.add("trail");V.pos=(V.pos+1)%N;tiles[V.pos].appendChild(koma);
+      koma.classList.remove("hop");void koma.offsetWidth;koma.classList.add("hop");
+      const sn=document.createElement("span");sn.className="stepn";sn.textContent=s;tiles[V.pos].appendChild(sn);
+      beep(560+s*60,.05,"triangle",.07);await wait(105)}
+    const t=tiles[V.pos];t.classList.remove("land");void t.offsetWidth;t.classList.add("land");
+    return;
+  }
+  if(ev.k==="land"){
+    V.anim=false;const me=meP(),mine=ev.res.find(r=>r.id===NET.me);
+    ev.res.forEach(r=>firePlayer(r.id));
+    if(ev.c===OUT){
+      const page=$("page");page.classList.remove("shake");void page.offsetWidth;page.classList.add("shake");
+      const fl=$("flashout");fl.classList.remove("on");void fl.offsetWidth;fl.classList.add("on");
+      $("board").classList.add("dead");setTimeout(()=>$("board").classList.remove("dead"),1300);
+      beep(300,.5,"sawtooth",.07);setTimeout(()=>beep(90,.6,"sawtooth",.07),250);
+      const el=$("banner");el.style.setProperty("--dur","1300ms");el.className="banner";void el.offsetWidth;
+      el.textContent=mine&&mine.block?"OUT…!?\n身代わり!":mine&&mine.out?`OUT\n-${mine.lost}`:"OUT";el.classList.add("out","show");
+      return;
+    }
+    if(mine&&mine.gain){jingle(mine.gain>=me.bet*15?[784,988,1175,1568,1976,2349]:[784,1047],60);coins(6+Math.round(mine.gain/Math.max(1,me.bet)));say(`当たり!\n+${mine.gain}`,"var(--stock)",900)}
+    else if(ev.upHit){jingle([659,880,1175,1568],70);say("オッズUP!","var(--fg)",800)}
+    else{const hitters=ev.res.filter(r=>r.gain).map(r=>P(r.id)?.name).filter(Boolean);
+      say(hitters.length?`${COLORS[ev.c].n}!\n${hitters.join("・")} 当たり`:COLORS[ev.c].n,COLORS[ev.c].v,700);beep(hitters.length?700:200,.12,"square",.04)}
+    return;
+  }
+  if(ev.k==="cash"){firePlayer(ev.id);if(ev.id===NET.me){jingle([1047,1319,1568,2093],90);coins(15);say(`利確!!\n+${ev.g}`,"var(--c3)",1000)}}
+}
+
+/* ---------- 画面の組み立て ---------- */
+function view(){
+  if(!G)return;
+  const me=meP();
+  $("tRound").textContent=G.round?`${G.round}/${MAX_ROUND}`:"-";
+  $("tSpin").textContent=G.spin?`${Math.min(G.spin,MAX_SPIN)}/${MAX_SPIN}`:"-";
+  $("tOdds").textContent="×"+ODDS[G.oi];
+  $("tUp").innerHTML=G.ups.map(u=>`<i style="width:22px;height:22px;border-radius:5px;border:2px solid var(--fg);background:${COLORS[u].v}"></i>`).join("")||"-";
+  $("tRoom").textContent=NET.code||"-";
+  const PH={lobby:"待機中",bet:"色と賭けを選ぶ",resolve:"色を決定中",run:"ルーレット",check:"利確チャンス",roundEnd:"ラウンド終了",shop:"ショップ",end:"ゲーム終了"};
+  $("tPhase").textContent=PH[G.phase]||"";
+  renderPlayers();renderPanel();paintBoard();
+  $("log").innerHTML=G.log.map(t=>`<div>${esc(t)}</div>`).join("");
+  const n=me?cpOf(me):5,filled=G.phase==="check"?n:(G.spin%n);
+  $("cp").innerHTML=Array.from({length:n},(_,i)=>`<i class="${G.phase==="run"||G.phase==="check"?(i<filled?"on":""):""}"></i>`).join("");
+  $("hint").textContent=G.phase==="run"&&me&&me.status==="active"?`あと${n-(G.spin%n)}回で利確チャンス`:(PH[G.phase]||"");
+  if(G.phase==="end")showEnd();
+}
+function renderPlayers(){
+  const ST={wait:["選択中",""],active:["参加中","active"],cashed:["利確済み","cashed"],out:["OUT","out"],dead:["脱落","dead"],shop:["買い物中",""]};
+  $("players").innerHTML=G.players.map(p=>{
+    let st=ST[p.status]||["",""];
+    if(G.phase==="bet"&&p.alive)st=p.locked?["決定","ready"]:["選択中",""];
+    if(G.phase==="shop"&&p.alive)st=p.ready?["準備OK","ready"]:["買い物中",""];
+    if(G.phase==="check"&&p.deciding)st=["考え中","active"];
+    if(!p.alive)st=["脱落","dead"];
+    const col=p.color??(G.phase==="bet"?p.want:null);
+    const hideBet=G.phase==="bet"&&!p.locked&&p.id!==NET.me;
+    return `<div class="pcard ${p.id===NET.me?"me":""} ${p.alive?"":"dead"}" data-id="${esc(p.id)}" style="${col!=null?`border-color:${COLORS[col].v}`:""}">
+      <div class="top"><span class="col" style="${col!=null?`background:${COLORS[col].v}`:""}"></span><b>${esc(p.name)}</b>${p.id===NET.me?`<span class="me-tag">あなた</span>`:""}${p.bot?`<span class="me-tag">CPU</span>`:""}${!p.online?`<span class="me-tag">切断</span>`:""}<span class="st ${st[1]}">${st[0]}</span></div>
+      <div class="nums"><div><small>メダル</small><b class="m">${p.medals}</b></div><div><small>未確定</small><b class="s">${p.status==="active"?p.stock:"-"}</b></div><div><small>賭け</small><b>${hideBet?"?":p.bet}</b></div></div>
+      <div class="ch">${p.charms.map(id=>`<span title="${esc(CHARMS[id].n+":"+CHARMS[id].d)}">${icon(id)}</span>`).join("")}</div>
+    </div>`}).join("");
+}
+function timerTick(){
+  if(!G)return;const left=G.left?Math.max(0,G.left-(Date.now()-(G._recv||Date.now()))):0;
+  const total=G.phase==="bet"?T_BET:G.phase==="check"?T_CHECK:G.phase==="shop"?T_SHOP:0;
+  $("tfill").style.width=total&&left?(left/total*100)+"%":"0%";
+  $("tbar").classList.toggle("hurry",left>0&&left<5000);
+  $("tLeft").textContent=left?Math.ceil(left/1000)+"秒":"";
+  const tl=document.querySelectorAll("[data-left]");tl.forEach(e=>e.textContent=left?`残り${Math.ceil(left/1000)}秒`:"");
+}
+setInterval(timerTick,200);
+
+let panelSig="";
+function renderPanel(){
+  const me=meP(),el=$("panel");if(!me){el.innerHTML="";return}
+  // 入力欄をこわさないよう、内容が変わったときだけ描き直す
+  const sig=JSON.stringify([G.phase,me.status,me.alive,me.locked,me.want,me.bet,me.medals,me.stock,me.deciding,me.ready,me.offers,me.charms,me.ob,me.heat,me.lastGain,G.oi,G.players.map(p=>[p.want,p.color,p.name])]);
+  if(sig===panelSig)return;panelSig=sig;
+  if(!me.alive){el.innerHTML=`<div class="watch"><b>脱落</b>メダルが尽きました。最後まで観戦できます。</div>`;return}
+  if(G.phase==="bet"){
+    const taken=c=>G.players.filter(p=>p!==me&&p.alive&&p.want===c).map(p=>p.tag).join("");
+    el.innerHTML=`<div class="box"><h2>色と賭け <small data-left></small></h2>
+      <div><div class="label">賭けメダル(このラウンド中は固定)</div><div class="betin">
+        <button type="button" data-d="-5" ${me.locked?"disabled":""}>-5</button><button type="button" data-d="-1" ${me.locked?"disabled":""}>-1</button>
+        <input id="betIn" type="number" inputmode="numeric" min="1" max="${me.medals}" value="${me.bet}" ${me.locked?"disabled":""} aria-label="賭けメダルの枚数">
+        <button type="button" data-d="1" ${me.locked?"disabled":""}>+1</button><button type="button" data-d="5" ${me.locked?"disabled":""}>+5</button>
+        <button type="button" data-d="max" ${me.locked?"disabled":""}>MAX</button></div></div>
+      <div class="preview"><span>自分の色に止まると</span><b>+${me.bet*ODDS[0]}枚</b></div>
+      <div><div class="label">色(1人1色。かぶったらルーレットで決める)</div><div class="colors">${COLORS.map((c,i)=>`<button class="cbtn" style="background:${c.v}" aria-label="${c.n}" aria-pressed="${me.want===i}" data-c="${i}" ${me.locked?"disabled":""}>${taken(i)?`<span class="tk">${esc(taken(i))}</span>`:""}</button>`).join("")}</div></div>
+      ${me.locked?`<div class="lockd">決定しました。ほかの人を待っています</div>`:`<button class="big" id="lockBtn" ${me.want==null?"disabled":""}>${me.want==null?"色を選ぶ":"これで決定"}</button>`}
+      <div class="callout"><span>OUTは全員共通。<strong>OUTが出た瞬間に参加中の全員</strong>の未確定が消える。5回ごとに各自で利確できる。20回で自動利確。</span></div></div>`;
+    return;
+  }
+  if(G.phase==="shop"){
+    const kw=new Set(me.charms.flatMap(id=>CHARMS[id].kw));
+    el.innerHTML=`<div class="box"><h2>ショップ <small data-left></small></h2>
+      <div class="shoprow" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span>所持 <b style="color:var(--gold);font-family:var(--display);font-size:1.2rem">${me.medals}</b> 枚</span>
+        <button id="rerollBtn" ${me.ready||me.medals<me.reroll?"disabled":""}>入れ替え(${me.reroll}枚)</button></div>
+      <div class="offers">${me.offers.map((o,k)=>{const d=CHARMS[o.id],syn=d.kw.filter(x=>kw.has(x));return `<div class="offer ${o.sold?"sold":""}">${icon(o.id)}
+        <div style="min-width:0"><b>${d.n} ${syn.length&&!o.sold?`<span class="syn">シナジー</span>`:""}</b><div>${d.kw.map(x=>`<span class="kw">${x}</span>`).join("")}</div><small>${d.d}</small></div>
+        <button data-buy="${k}" ${o.sold||me.ready||me.medals<o.price||me.charms.length>=5?"disabled":""}>${o.sold?"済":o.price+"枚"}</button></div>`}).join("")}</div>
+      ${me.charms.length?`<div><div class="label">持っているお守り(半額で売れる)</div>${me.charms.map((id,k)=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.82rem;padding:3px 0"><span>${CHARMS[id].n}</span><button data-sell="${k}" ${me.ready?"disabled":""} style="padding:3px 8px;font-size:.74rem">売る +${Math.floor(CHARMS[id].price/2)}</button></div>`).join("")}</div>`:""}
+      ${me.ready?`<div class="lockd">準備OK。ほかの人を待っています</div>`:`<button class="big" id="readyBtn">準備OK</button>`}</div>`;
+    return;
+  }
+  if(me.status==="active"||me.status==="out"||me.status==="cashed"){
+    const tierS=me.stock>=me.bet*40?"t3":me.stock>=me.bet*20?"t2":me.stock>=me.bet*8?"t1":"";
+    el.innerHTML=`<div class="box">
+      ${me.status==="active"?`<div class="stock ${tierS}"><small>未確定メダル</small><b>${me.stock}</b><span>利確すると <em>メダル</em> に入る / <u>OUT</u> で消える</span></div>
+      <div class="bigpay"><span>自分の色<i class="chip" style="background:${COLORS[me.color].v}"></i>に止まると</span><b>+${me.bet*oddsOf(me)}枚</b></div>
+      ${me.deciding?`<div class="check"><h3>利確チャンス <small data-left style="font-family:var(--body);font-size:.8rem;color:var(--muted)"></small></h3><p>今やめれば <b>${me.stock}枚</b> が手に入る。何もしないと「続ける」になる。</p>
+        <div class="two"><button class="safe" id="cashBtn">利確する</button><button class="big" id="contBtn">続ける</button></div></div>`
+        :G.phase==="check"?`<div class="lockd">ほかの人の判断を待っています</div>`:""}`
+      :me.status==="cashed"?`<div class="watch"><b>利確済み</b>このラウンドは観戦。+${me.lastGain}枚 手に入れました。</div>`
+      :`<div class="watch"><b>OUT</b>このラウンドは観戦です。</div>`}
+    </div>`;
+    return;
+  }
+  el.innerHTML=`<div class="watch"><b>${G.phase==="end"?"ゲーム終了":"待機中"}</b></div>`;
+}
+
+/* ---------- 入力 ---------- */
+document.addEventListener("click",e=>{
+  const t=e.target;const me=meP();if(!me)return;
+  const c=t.closest("[data-c]");if(c&&!c.disabled){send({a:"pick",color:+c.dataset.c});beep(660,.05);return}
+  const d=t.closest("[data-d]");if(d&&!d.disabled){const v=d.dataset.d;send({a:"pick",bet:v==="max"?me.medals:me.bet+(+v)});beep(500,.04);return}
+  if(t.id==="lockBtn")send({a:"lock"});
+  if(t.id==="cashBtn")send({a:"decide",v:"cash"});
+  if(t.id==="contBtn")send({a:"decide",v:"cont"});
+  const b=t.closest("[data-buy]");if(b&&!b.disabled){send({a:"buy",k:+b.dataset.buy});jingle([784,1047],60)}
+  const s=t.closest("[data-sell]");if(s&&!s.disabled)send({a:"sell",k:+s.dataset.sell});
+  if(t.id==="rerollBtn")send({a:"reroll"});
+  if(t.id==="readyBtn")send({a:"ready"});
+});
+document.addEventListener("change",e=>{if(e.target.id==="betIn")send({a:"pick",bet:+e.target.value})});
+$("snd").onclick=()=>{soundOn=!soundOn;$("snd").textContent="音:"+(soundOn?"ON":"OFF")};
+
+/* ---------- ロビー ---------- */
+function showModal(h){$("modal").innerHTML=h;$("overlay").hidden=false}
+function hideModal(){$("overlay").hidden=true}
+function lobbyError(t){const e=$("lerr");if(e)e.textContent=t;else showModal(`<h2>エラー</h2><p>${esc(t)}</p><button class="big" onclick="location.reload()">最初に戻る</button>`)}
+function lobbyStart(){
+  const ok=typeof Peer!=="undefined";
+  showModal(`<h2>メダルすごろく マルチ</h2>
+    <div><div class="label">名前</div><input type="text" id="lname" maxlength="10" value="プレイヤー"></div>
+    ${ok?`<button class="big" id="lhost">部屋を作る</button>
+    <div class="or">または、もらったコードで参加</div>
+    <div class="two"><input type="text" id="lcode" maxlength="4" placeholder="コード4文字" style="text-transform:uppercase"><button class="big" id="ljoin">参加する</button></div>`
+    :`<p>通信ライブラリを読み込めませんでした。インターネットにつながった状態で、GitHub Pagesなどに置いたページを開くと友達と遊べます。</p>`}
+    <button id="loff">CPUとだけ遊ぶ(通信なし)</button>
+    <div class="err" id="lerr"></div>`);
+  const nm=()=>$("lname").value.trim()||"プレイヤー";
+  if(ok){$("lhost").onclick=()=>{$("lerr").textContent="部屋を作っています…";hostCreate(nm(),false)};
+    $("ljoin").onclick=()=>{const code=$("lcode").value.trim().toUpperCase();if(code.length!==4){$("lerr").textContent="コードは4文字です";return}
+      $("lerr").textContent="接続しています…";clientJoin(nm(),code)}}
+  $("loff").onclick=()=>hostCreate(nm(),true);
+}
+function lobbyHost(){
+  showModal(`<h2>部屋を作りました</h2>
+    ${NET.offline?`<p>通信なしモードです。CPUを追加して遊べます。</p>`:`<p>友達にこのコードを送ってください。</p><div class="code">${NET.code}</div>`}
+    <div><div class="label">参加者(${G.players.length}/${MAX_PLAYERS})</div><div class="plist">${G.players.map(p=>`<div><span>${esc(p.name)}</span><span>${p.id===NET.me?"ホスト":p.bot?"CPU":"参加"}</span></div>`).join("")}</div></div>
+    <div class="two"><button id="lbot" ${G.players.length>=MAX_PLAYERS?"disabled":""}>CPUを追加</button><button class="big" id="lgo">ゲーム開始</button></div>
+    <p style="font-size:.8rem">ルール:全員で同じ盤とルーレット。1人1色。メダルが0になったら脱落。${MAX_ROUND}ラウンド生き残ったらメダルの多い人が勝ち。</p>`);
+  $("lbot").onclick=()=>send({a:"bot"});
+  $("lgo").onclick=()=>{hideModal();send({a:"start"})};
+}
+function lobbyGuest(){
+  showModal(`<h2>部屋 ${esc(NET.code)} に参加しました</h2><p>ホストがゲームを始めるのを待っています。</p>
+    <div class="plist">${G.players.map(p=>`<div><span>${esc(p.name)}</span><span>${p.id===NET.me?"あなた":p.bot?"CPU":""}</span></div>`).join("")}</div>`);
+}
+function showEnd(){
+  if(!G.ranking)return;
+  showModal(`<h2>勝者:${esc(G.winner)}</h2><div class="rank">${G.ranking.map((r,i)=>`<div><span>${i+1}位 ${esc(r.name)}${r.alive?"":"(脱落)"}</span><span>${r.medals}枚</span></div>`).join("")}</div>
+    <button class="big" onclick="location.reload()">最初に戻る</button>`);
+}
+
+buildBoard();
+G=newGame();view();
+lobbyStart();
+</script>
+</body>
+</html>
