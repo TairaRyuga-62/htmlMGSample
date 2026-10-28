@@ -165,8 +165,27 @@ body{margin:0}
 .pcard .nums b{font-family:var(--display);font-weight:400;font-size:1.05rem;font-variant-numeric:tabular-nums}
 .pcard .nums .m{color:var(--gold)}.pcard .nums .s{color:var(--stock)}
 .pcard .ch{display:flex;gap:4px;flex-wrap:wrap;min-height:4px}
-.pcard .ch span{width:24px;height:24px;display:block}
-.pcard .ch svg{width:100%;height:100%;border-radius:5px;display:block}
+.pcard .ch .chn{display:flex;align-items:center;gap:4px;background:var(--bg);border-radius:6px;padding:2px 6px 2px 2px;max-width:100%}
+.pcard .ch .chn svg{width:20px;height:20px;border-radius:4px;display:block;flex:none}
+.pcard .ch .chn em{font-style:normal;font-size:.66rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pcard .ch .none{font-size:.64rem;color:var(--muted)}
+.pcard .pops{position:absolute;right:10px;top:34px;pointer-events:none}
+.pop{position:absolute;right:0;font-family:var(--display);font-size:1.3rem;white-space:nowrap;text-shadow:0 2px 0 #000;animation:popup 1.8s ease-out forwards}
+.pop.s{color:var(--stock)}.pop.c{color:var(--c3)}
+@keyframes popup{0%{transform:translateY(10px) scale(.6);opacity:0}15%{transform:translateY(0) scale(1.2);opacity:1}30%{transform:scale(1)}80%{opacity:1}100%{transform:translateY(-26px);opacity:0}}
+.toasts{position:absolute;left:50%;top:12px;transform:translateX(-50%);display:flex;flex-direction:column;gap:6px;align-items:center;z-index:7;pointer-events:none;width:90%}
+.toast{background:rgba(20,18,28,.92);border:2px solid var(--stock);border-radius:99px;padding:5px 14px;font-weight:800;font-size:.85rem;animation:toast 2.8s ease-out forwards;max-width:100%;text-align:center}
+.toast.c{border-color:var(--c3)}.toast.b{border-color:var(--gold)}
+@keyframes toast{0%{transform:translateY(-10px);opacity:0}10%{transform:none;opacity:1}85%{opacity:1}100%{opacity:0}}
+.rtrack{display:flex;gap:4px;align-items:center}
+.rtrack i{width:18px;height:18px;border-radius:5px;border:2px solid var(--line);font-style:normal;font-size:.6rem;display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:800}
+.rtrack i.done{background:var(--gold-d);border-color:var(--gold-d);color:var(--ink)}
+.rtrack i.now{background:var(--gold);border-color:var(--gold);color:#2a1d00;transform:scale(1.15)}
+.rtrack .shop{font-size:.62rem;color:var(--gold);font-weight:800;padding:0 1px}
+.mych{display:flex;flex-direction:column;gap:6px}
+.mych div{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;font-size:.74rem;color:var(--muted);line-height:1.4}
+.mych svg{width:28px;height:28px;border-radius:6px;display:block}
+.mych b{color:var(--fg);font-size:.8rem;display:block}
 .pcard .me-tag{font-size:.6rem;color:var(--muted)}
 .pcard.fire{animation:pfire .6s ease-out}
 @keyframes pfire{30%{transform:translateY(-4px);box-shadow:0 0 0 3px var(--gold),0 0 20px var(--gold)}}
@@ -230,7 +249,7 @@ body{margin:0}
 <body>
 <div class="page" id="page">
   <div class="topbar">
-    <div class="stat"><small>ラウンド</small><b id="tRound">-</b></div>
+    <div class="stat"><small>ラウンド <span id="tRound"></span></small><div class="rtrack" id="rtrack"></div></div>
     <div class="stat"><small>ルーレット</small><b id="tSpin">-</b></div>
     <div class="stat"><small>オッズ</small><b id="tOdds" style="color:var(--stock)">×5</b></div>
     <div class="stat"><small>UPの色</small><b id="tUp" style="display:flex;gap:4px;min-height:1.3rem"></b></div>
@@ -250,6 +269,7 @@ body{margin:0}
         </div>
       </div>
       <div class="banner" id="banner"></div>
+      <div class="toasts" id="toasts"></div>
     </div>
 
     <div class="side" id="side">
@@ -269,8 +289,8 @@ body{margin:0}
    ========================================================= */
 const COLORS=[{n:"赤",v:"var(--c0)"},{n:"青",v:"var(--c1)"},{n:"黄",v:"var(--c2)"},{n:"緑",v:"var(--c3)"},{n:"紫",v:"var(--c4)"}];
 const OUT=5, SIDE=10, ODDS=[5,6,8,10,13,16,20,25,32,40,50,64];
-const MAX_ROUND=8, MAX_SPIN=20, START_MEDALS=50, MAX_PLAYERS=5;
-const T_BET=20000, T_CHECK=10000, T_SHOP=30000;
+const MAX_ROUND=9, MAX_SPIN=20, START_MEDALS=50, MAX_PLAYERS=5, SAFE_SPINS=3, SHOP_ROUNDS=[3,6];
+const T_BET=20000, T_CHECK=10000, T_SHOP=60000;
 const $=id=>document.getElementById(id);
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
@@ -396,7 +416,7 @@ function addPlayer(id,name,bot){
   name=(name||"プレイヤー").slice(0,10);
   let tag=name[0];if(G.players.some(x=>x.tag===tag))tag=name[0]+(G.players.length+1);
   G.players.push({id,name,tag,bot,online:true,alive:true,medals:START_MEDALS,charms:[],
-    color:null,want:null,bet:5,locked:false,stock:0,status:"wait",hits:0,heat:0,ob:0,dollLeft:0,piggy:0,
+    color:null,want:null,bet:5,bought:[],locked:false,stock:0,status:"wait",hits:0,heat:0,ob:0,dollLeft:0,piggy:0,
     deciding:false,decision:null,offers:[],reroll:5,ready:false,lastGain:0});
 }
 const P=id=>G.players.find(p=>p.id===id);
@@ -415,8 +435,7 @@ function hostAct(pid,a){
   }
   if(G.phase==="check"&&p.deciding&&a.a==="decide"){p.decision=a.v;p.deciding=false;pushState();if(!G.players.some(x=>x.deciding))wake()}
   if(G.phase==="shop"&&p.alive&&!p.ready){
-    if(a.a==="buy"){const o=p.offers[a.k];if(o&&!o.sold&&p.medals>=o.price&&p.charms.length<5){p.medals-=o.price;o.sold=true;p.charms.push(o.id);if(o.id==="doll")p.dollLeft=2}}
-    if(a.a==="sell"){const id=p.charms[a.k];if(id){p.charms.splice(a.k,1);p.medals+=Math.floor(CHARMS[id].price/2)}}
+    if(a.a==="buy"){const o=p.offers[a.k];if(o&&!o.sold&&p.medals>=o.price&&p.charms.length<5){p.medals-=o.price;o.sold=true;p.charms.push(o.id);p.bought.push(o.id);log(`${p.name} が「${CHARMS[o.id].n}」を買った`);if(o.id==="doll")p.dollLeft=2}}
     if(a.a==="reroll"&&p.medals>=p.reroll){p.medals-=p.reroll;p.reroll+=3;rollOffers(p)}
     if(a.a==="ready")p.ready=true;
     pushState();if(alivePs().every(x=>x.ready))wake();
@@ -458,7 +477,7 @@ async function runGame(){
     await spinPhase();
     const over=roundEnd();
     if(over)return;
-    if(G.round<MAX_ROUND)await shopPhase();
+    if(SHOP_ROUNDS.includes(G.round))await shopPhase();
   }
   finish("最大ラウンド終了");
 }
@@ -499,6 +518,8 @@ async function spinPhase(){
   for(G.spin=1;G.spin<=MAX_SPIN;G.spin++){
     if(!activePs().length)break;
     setDeadline(0);pushState();
+    bcastEv({k:"say",text:G.spin<=SAFE_SPINS?`${G.spin}回目\nOUT無効`:G.spin===MAX_SPIN?"ラスト\n20回目":`${G.spin}回目`,color:G.spin<=SAFE_SPINS?"var(--c3)":"var(--fg)",ms:850});
+    await wait(950);
     const d=1+(Math.random()*6|0),a=5+Math.random()*50,dur=2000+Math.random()*700;
     bcastEv({k:"spin",d,a,dur,from:G.pos});
     await wait(dur+520+d*105+300);
@@ -506,7 +527,7 @@ async function spinPhase(){
     G.laps+=laps;
     landing(d,laps);
     pushState();
-    await wait(1500);
+    await wait(2600);
     if(!activePs().length)break;
     if(G.spin===MAX_SPIN){ // 20回目:残っている人は自動で利確
       activePs().forEach(p=>doCash(p,"20回到達で自動利確"));pushState();
@@ -525,6 +546,10 @@ async function spinPhase(){
 }
 function landing(d,laps){
   const i=G.pos,c=G.board[i],res=[];let upHit=false;
+  if(c===OUT&&G.spin<=SAFE_SPINS){
+    log(`${G.spin}回目:OUTに止まったが、3回目まではセーフ`);
+    bcastEv({k:"land",c,d,res:[],safe:true});return;
+  }
   activePs().forEach(p=>{
     for(let k=0;k<laps;k++)pEach(p,"lap",(df)=>res.push({id:p.id,t:`${df.n}:${df.lap(p)}`}));
     if(c===OUT){
@@ -544,7 +569,7 @@ function landing(d,laps){
     }
     if(G.ups.includes(c))pEach(p,"upHit",df=>res.push({id:p.id,t:`${df.n} ${df.upHit(p)}`}));
   });
-  if(c!==OUT&&G.ups.includes(c)){upHit=true;G.oi=Math.min(ODDS.length-1,G.oi+1);newUps()}
+  if(c!==OUT&&G.ups.includes(c)){upHit=true;G.oi=Math.min(ODDS.length-1,G.oi+1)}
   res.forEach(r=>log(`${P(r.id).name}:${r.t}`));
   if(upHit)log(`UPの色に止まった → 全員のオッズUP`);
   if(c===OUT&&!res.some(r=>r.out||r.block))log("OUT(参加中の人はいない)");
@@ -565,19 +590,22 @@ function roundEnd(){
   pushState();
   if(G.players.length>1&&alive.length<=1){finish(alive.length?"最後の1人":"全員脱落");return true}
   if(G.players.length===1&&!alive.length){finish("脱落");return true}
-  if(G.round>=MAX_ROUND){finish("8ラウンド生き残った");return true}
+  if(G.round>=MAX_ROUND){finish(`${MAX_ROUND}ラウンド生き残った`);return true}
   return false;
 }
 function rollOffers(p){
   const pool=shuffle(Object.keys(CHARMS).filter(id=>!p.charms.includes(id))).slice(0,3);
-  p.offers=pool.map(id=>({id,sold:false,price:Math.round(CHARMS[id].price*(1+(G.round-1)*.15))}));
+  p.offers=pool.map(id=>({id,sold:false,price:Math.round(CHARMS[id].price*(1+(G.round-1)*.2))}));
 }
 async function shopPhase(){
   G.phase="shop";
-  alivePs().forEach(p=>{p.ready=false;p.reroll=5;rollOffers(p);p.status="shop"});
+  alivePs().forEach(p=>{p.ready=false;p.reroll=5;p.bought=[];rollOffers(p);p.status="shop"});
   log("ショップ:お守りを買える");
+  bcastEv({k:"say",text:"ショップ",color:"var(--gold)",ms:900});
   botThink();
   await waitPhase(T_SHOP);
+  bcastEv({k:"bought",list:alivePs().map(p=>({id:p.id,name:p.name,ids:p.bought}))});
+  await wait(3500);
 }
 function finish(why){
   G.phase="end";setDeadline(0);
@@ -638,6 +666,10 @@ function coins(n){if(reduced)return;n=Math.min(60,n);
   for(let k=0;k<n;k++){const c=document.createElement("div");c.className="coin";c.style.left=(Math.random()*100)+"vw";
     const dur=1.2+Math.random()*1.3;c.style.animationDuration=dur+"s";c.style.animationDelay=(Math.random()*.5)+"s";
     document.body.appendChild(c);setTimeout(()=>c.remove(),(dur+.6)*1000)}}
+function toast(t,cls){const box=$("toasts");const d=document.createElement("div");d.className="toast "+(cls||"");d.textContent=t;box.appendChild(d);setTimeout(()=>d.remove(),2900)}
+function popOn(id,t,cls){const el=document.querySelector(`.pcard[data-id="${CSS.escape(id)}"]`);if(!el)return;const r=el.getBoundingClientRect();
+  const d=document.createElement("div");d.className="pop "+cls;d.textContent=t;d.style.position="fixed";d.style.left="auto";d.style.right=(innerWidth-r.right+12)+"px";d.style.top=(r.top+30)+"px";d.style.zIndex=17;
+  document.body.appendChild(d);setTimeout(()=>d.remove(),1900)}
 function firePlayer(id){const el=document.querySelector(`.pcard[data-id="${CSS.escape(id)}"]`);if(el){el.classList.remove("fire");void el.offsetWidth;el.classList.add("fire")}}
 
 /* ---------- イベント演出 ---------- */
@@ -674,6 +706,9 @@ async function playEv(ev){
   if(ev.k==="land"){
     V.anim=false;const me=meP(),mine=ev.res.find(r=>r.id===NET.me);
     ev.res.forEach(r=>firePlayer(r.id));
+    setTimeout(()=>ev.res.forEach(r=>{if(r.gain){popOn(r.id,"+"+r.gain,"s");if(r.id!==NET.me){toast(`${P(r.id)?.name||""} 当たり +${r.gain}(未確定)`);beep(880,.06)}}}),120);
+    if(ev.safe){const page=$("page");page.classList.remove("shake");void page.offsetWidth;page.classList.add("shake");
+      beep(260,.2,"sawtooth",.05);setTimeout(()=>jingle([784,1047]),350);say("OUT…\nでもセーフ!","var(--c3)",1100);return}
     if(ev.c===OUT){
       const page=$("page");page.classList.remove("shake");void page.offsetWidth;page.classList.add("shake");
       const fl=$("flashout");fl.classList.remove("on");void fl.offsetWidth;fl.classList.add("on");
@@ -689,14 +724,16 @@ async function playEv(ev){
       say(hitters.length?`${COLORS[ev.c].n}!\n${hitters.join("・")} 当たり`:COLORS[ev.c].n,COLORS[ev.c].v,700);beep(hitters.length?700:200,.12,"square",.04)}
     return;
   }
-  if(ev.k==="cash"){firePlayer(ev.id);if(ev.id===NET.me){jingle([1047,1319,1568,2093],90);coins(15);say(`利確!!\n+${ev.g}`,"var(--c3)",1000)}}
+  if(ev.k==="bought"){ev.list.forEach((b,k)=>setTimeout(()=>toast(`${b.name}:${b.ids.length?b.ids.map(id=>CHARMS[id].n).join("・"):"買わなかった"}`,"b"),k*400));return}
+  if(ev.k==="cash"){firePlayer(ev.id);setTimeout(()=>popOn(ev.id,"+"+ev.g,"c"),100);if(ev.id!==NET.me){toast(`${P(ev.id)?.name||""} 利確 +${ev.g}`,"c");jingle([1047,1319],70)}if(ev.id===NET.me){jingle([1047,1319,1568,2093],90);coins(15);say(`利確!!\n+${ev.g}`,"var(--c3)",1000)}}
 }
 
 /* ---------- 画面の組み立て ---------- */
 function view(){
   if(!G)return;
   const me=meP();
-  $("tRound").textContent=G.round?`${G.round}/${MAX_ROUND}`:"-";
+  $("tRound").textContent=G.round?`${G.round}/${MAX_ROUND}`:"";
+  $("rtrack").innerHTML=Array.from({length:MAX_ROUND},(_,k)=>{const r=k+1;return `<i class="${r<G.round||(r===G.round&&G.phase==="end")?"done":r===G.round?"now":""}">${r}</i>${SHOP_ROUNDS.includes(r)?`<span class="shop" title="ショップ">店</span>`:""}`}).join("");
   $("tSpin").textContent=G.spin?`${Math.min(G.spin,MAX_SPIN)}/${MAX_SPIN}`:"-";
   $("tOdds").textContent="×"+ODDS[G.oi];
   $("tUp").innerHTML=G.ups.map(u=>`<i style="width:22px;height:22px;border-radius:5px;border:2px solid var(--fg);background:${COLORS[u].v}"></i>`).join("")||"-";
@@ -723,7 +760,7 @@ function renderPlayers(){
     return `<div class="pcard ${p.id===NET.me?"me":""} ${p.alive?"":"dead"}" data-id="${esc(p.id)}" style="${col!=null?`border-color:${COLORS[col].v}`:""}">
       <div class="top"><span class="col" style="${col!=null?`background:${COLORS[col].v}`:""}"></span><b>${esc(p.name)}</b>${p.id===NET.me?`<span class="me-tag">あなた</span>`:""}${p.bot?`<span class="me-tag">CPU</span>`:""}${!p.online?`<span class="me-tag">切断</span>`:""}<span class="st ${st[1]}">${st[0]}</span></div>
       <div class="nums"><div><small>メダル</small><b class="m">${p.medals}</b></div><div><small>未確定</small><b class="s">${p.status==="active"?p.stock:"-"}</b></div><div><small>賭け</small><b>${hideBet?"?":p.bet}</b></div></div>
-      <div class="ch">${p.charms.map(id=>`<span title="${esc(CHARMS[id].n+":"+CHARMS[id].d)}">${icon(id)}</span>`).join("")}</div>
+      <div class="ch">${p.charms.map(id=>`<span class="chn" title="${esc(CHARMS[id].n+":"+CHARMS[id].d)}">${icon(id)}<em>${CHARMS[id].n}</em></span>`).join("")||`<span class="none">お守りなし</span>`}</div>
     </div>`}).join("");
 }
 function timerTick(){
@@ -737,10 +774,11 @@ function timerTick(){
 setInterval(timerTick,200);
 
 let panelSig="";
+function myCharms(me){return me.charms.length?`<div><div class="label">自分のお守り</div><div class="mych">${me.charms.map(id=>`<div>${icon(id)}<span><b>${CHARMS[id].n}</b>${CHARMS[id].d}</span></div>`).join("")}</div></div>`:""}
 function renderPanel(){
   const me=meP(),el=$("panel");if(!me){el.innerHTML="";return}
   // 入力欄をこわさないよう、内容が変わったときだけ描き直す
-  const sig=JSON.stringify([G.phase,me.status,me.alive,me.locked,me.want,me.bet,me.medals,me.stock,me.deciding,me.ready,me.offers,me.charms,me.ob,me.heat,me.lastGain,G.oi,G.players.map(p=>[p.want,p.color,p.name])]);
+  const sig=JSON.stringify([G.phase,me.status,me.alive,me.locked,me.want,me.bet,me.medals,me.stock,me.deciding,me.ready,me.offers,me.charms,G.spin<=SAFE_SPINS,G.players.map(p=>p.bought),me.ob,me.heat,me.lastGain,G.oi,G.players.map(p=>[p.want,p.color,p.name])]);
   if(sig===panelSig)return;panelSig=sig;
   if(!me.alive){el.innerHTML=`<div class="watch"><b>脱落</b>メダルが尽きました。最後まで観戦できます。</div>`;return}
   if(G.phase==="bet"){
@@ -765,7 +803,8 @@ function renderPanel(){
       <div class="offers">${me.offers.map((o,k)=>{const d=CHARMS[o.id],syn=d.kw.filter(x=>kw.has(x));return `<div class="offer ${o.sold?"sold":""}">${icon(o.id)}
         <div style="min-width:0"><b>${d.n} ${syn.length&&!o.sold?`<span class="syn">シナジー</span>`:""}</b><div>${d.kw.map(x=>`<span class="kw">${x}</span>`).join("")}</div><small>${d.d}</small></div>
         <button data-buy="${k}" ${o.sold||me.ready||me.medals<o.price||me.charms.length>=5?"disabled":""}>${o.sold?"済":o.price+"枚"}</button></div>`}).join("")}</div>
-      ${me.charms.length?`<div><div class="label">持っているお守り(半額で売れる)</div>${me.charms.map((id,k)=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.82rem;padding:3px 0"><span>${CHARMS[id].n}</span><button data-sell="${k}" ${me.ready?"disabled":""} style="padding:3px 8px;font-size:.74rem">売る +${Math.floor(CHARMS[id].price/2)}</button></div>`).join("")}</div>`:""}
+      ${myCharms(me)}
+      <div><div class="label">ほかの人が買ったもの</div>${G.players.filter(p=>p!==me&&p.alive).map(p=>`<div style="font-size:.8rem;padding:2px 0"><b>${esc(p.name)}</b>:${(p.bought||[]).length?p.bought.map(id=>CHARMS[id].n).join("、"):(p.ready?"なし":"選んでいる…")}</div>`).join("")||`<div style="font-size:.8rem">いません</div>`}</div>
       ${me.ready?`<div class="lockd">準備OK。ほかの人を待っています</div>`:`<button class="big" id="readyBtn">準備OK</button>`}</div>`;
     return;
   }
@@ -774,15 +813,17 @@ function renderPanel(){
     el.innerHTML=`<div class="box">
       ${me.status==="active"?`<div class="stock ${tierS}"><small>未確定メダル</small><b>${me.stock}</b><span>利確すると <em>メダル</em> に入る / <u>OUT</u> で消える</span></div>
       <div class="bigpay"><span>自分の色<i class="chip" style="background:${COLORS[me.color].v}"></i>に止まると</span><b>+${me.bet*oddsOf(me)}枚</b></div>
+      ${G.spin<=SAFE_SPINS?`<div class="lockd">3回目まではOUTに止まってもセーフ</div>`:""}
       ${me.deciding?`<div class="check"><h3>利確チャンス <small data-left style="font-family:var(--body);font-size:.8rem;color:var(--muted)"></small></h3><p>今やめれば <b>${me.stock}枚</b> が手に入る。何もしないと「続ける」になる。</p>
         <div class="two"><button class="safe" id="cashBtn">利確する</button><button class="big" id="contBtn">続ける</button></div></div>`
         :G.phase==="check"?`<div class="lockd">ほかの人の判断を待っています</div>`:""}`
       :me.status==="cashed"?`<div class="watch"><b>利確済み</b>このラウンドは観戦。+${me.lastGain}枚 手に入れました。</div>`
       :`<div class="watch"><b>OUT</b>このラウンドは観戦です。</div>`}
+      ${myCharms(me)}
     </div>`;
     return;
   }
-  el.innerHTML=`<div class="watch"><b>${G.phase==="end"?"ゲーム終了":"待機中"}</b></div>`;
+  el.innerHTML=`<div class="watch"><b>${G.phase==="end"?"ゲーム終了":"待機中"}</b></div>${myCharms(me)}`;
 }
 
 /* ---------- 入力 ---------- */
@@ -794,7 +835,6 @@ document.addEventListener("click",e=>{
   if(t.id==="cashBtn")send({a:"decide",v:"cash"});
   if(t.id==="contBtn")send({a:"decide",v:"cont"});
   const b=t.closest("[data-buy]");if(b&&!b.disabled){send({a:"buy",k:+b.dataset.buy});jingle([784,1047],60)}
-  const s=t.closest("[data-sell]");if(s&&!s.disabled)send({a:"sell",k:+s.dataset.sell});
   if(t.id==="rerollBtn")send({a:"reroll"});
   if(t.id==="readyBtn")send({a:"ready"});
 });
@@ -826,7 +866,7 @@ function lobbyHost(){
     ${NET.offline?`<p>通信なしモードです。CPUを追加して遊べます。</p>`:`<p>友達にこのコードを送ってください。</p><div class="code">${NET.code}</div>`}
     <div><div class="label">参加者(${G.players.length}/${MAX_PLAYERS})</div><div class="plist">${G.players.map(p=>`<div><span>${esc(p.name)}</span><span>${p.id===NET.me?"ホスト":p.bot?"CPU":"参加"}</span></div>`).join("")}</div></div>
     <div class="two"><button id="lbot" ${G.players.length>=MAX_PLAYERS?"disabled":""}>CPUを追加</button><button class="big" id="lgo">ゲーム開始</button></div>
-    <p style="font-size:.8rem">ルール:全員で同じ盤とルーレット。1人1色。メダルが0になったら脱落。${MAX_ROUND}ラウンド生き残ったらメダルの多い人が勝ち。</p>`);
+    <p style="font-size:.8rem">ルール:全員で同じ盤とルーレット。1人1色。各ラウンド3回目まではOUTに止まってもセーフ。メダルが0になったら脱落。ショップは3・6ラウンドの後。${MAX_ROUND}ラウンド生き残ったらメダルの多い人が勝ち。</p>`);
   $("lbot").onclick=()=>send({a:"bot"});
   $("lgo").onclick=()=>{hideModal();send({a:"start"})};
 }
