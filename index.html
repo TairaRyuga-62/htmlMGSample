@@ -130,7 +130,7 @@ button:disabled{opacity:.35;cursor:not-allowed}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .last{font-size:.8rem;line-height:1.55;border-top:1px dashed var(--line);padding-top:10px;color:var(--muted);min-height:2.6em}
 .last b{color:var(--fg)}.last .hit{color:var(--gold)}.last .bad{color:var(--c0)}.last .ok{color:var(--c3)}
-.foot{display:flex;justify-content:flex-end}
+.foot{display:flex;justify-content:flex-end;flex-wrap:wrap}.foot button{white-space:nowrap}
 .foot button{padding:4px 10px;font-size:.76rem}
 
 .overlay{position:fixed;inset:0;background:rgba(10,8,16,.84);display:flex;align-items:center;justify-content:center;padding:20px;z-index:20}
@@ -486,18 +486,210 @@ html.low .rays,html.low .crack,html.low .flashw{display:none}
 .mych div span{min-width:0;overflow-wrap:anywhere}
 .tile .pay.long{font-size:clamp(.36rem,1.05vw,.62rem);padding:1px 2px;letter-spacing:-.02em}
 .yokoku small{max-width:46cqw;white-space:normal}
+
+.eq{display:grid;grid-template-columns:minmax(0,.8fr) auto minmax(0,1fr) auto minmax(0,1.5fr);align-items:stretch;gap:4px;background:var(--bg);border:2px solid var(--stock);border-radius:14px;padding:10px 8px}
+.eqc{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-width:0;text-align:center;gap:2px}
+.eqc small{font-size:.66rem;color:var(--muted);display:flex;align-items:center;gap:3px;white-space:nowrap}
+.eqc b{font-family:var(--display);font-weight:400;font-size:1.5rem;line-height:1.1;font-variant-numeric:tabular-nums;width:100%}
+.eqc.odds b{color:var(--fg)}
+.eqc.res b{color:var(--stock);font-size:1.8rem;text-shadow:0 0 14px rgba(79,214,232,.4)}
+.eq .op{align-self:center;font-family:var(--display);font-size:1.2rem;color:var(--muted)}
+.equp{font-size:.62rem!important;color:var(--fg)!important;background:var(--panel);border-radius:6px;padding:1px 5px;white-space:nowrap}
+.equp .chip{width:11px;height:11px;border-width:1px;font-size:.45rem}
+.equp.mine{background:var(--gold);color:#2a1d00!important}
+.equp em{font-style:normal;font-weight:800;margin-left:2px}
+.eq .chip{width:12px;height:12px;border-width:1px;display:inline-flex;align-items:center;justify-content:center;font-size:.45rem;color:rgba(20,18,28,.9)}
+.bonus20{position:relative;overflow:hidden;border-radius:14px;padding:12px 14px 10px;background:linear-gradient(135deg,#5a3d00,#b8891a 45%,#f7c948 60%,#8a5e00);border:2px solid #fff3c4;box-shadow:0 0 22px rgba(247,201,72,.45),inset 0 0 18px rgba(255,255,255,.25);display:flex;flex-direction:column;gap:4px;color:#fff}
+.bonus20::before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.45) 45%,transparent 60%);background-size:250% 100%;animation:shine 2.6s linear infinite;pointer-events:none}
+@keyframes shine{from{background-position:150% 0}to{background-position:-100% 0}}
+.bonus20 .rib{position:absolute;top:10px;right:-30px;transform:rotate(35deg);background:#ec4e5a;color:#fff;font-family:var(--display);font-size:.62rem;padding:2px 34px;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.bonus20 .bt{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;padding-right:44px}
+.bonus20 .bt b{font-family:var(--display);font-weight:400;font-size:1.05rem;text-shadow:0 2px 0 #5a3d00}
+.bonus20 .bt span{font-size:.7rem;font-weight:800;background:rgba(0,0,0,.3);border-radius:99px;padding:1px 8px}
+.bonus20 .bv{font-family:var(--display);font-size:2rem;line-height:1.1;text-shadow:0 3px 0 #5a3d00,0 0 16px #fff3c4;text-align:right}
+.bonus20 .bv small{font-size:.5em;margin-left:2px}
+.bonus20 .bbar{position:relative;height:16px;border-radius:8px;background:rgba(0,0,0,.35);overflow:hidden}
+.bonus20 .bbar i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,#fff3c4,#fff);transition:width .4s}
+.bonus20 .bbar span{position:relative;display:block;text-align:center;font-size:.66rem;font-weight:800;line-height:16px;color:#2a1d00;mix-blend-mode:normal}
+html.low .bonus20::before{animation:none}
+.topbar{gap:10px 20px}
+
+.eq{padding:14px 10px!important;border-width:3px!important;box-shadow:0 0 22px rgba(79,214,232,.25)}
+.eqc small{font-size:.74rem!important}
+.eqc b{font-size:2.1rem!important}
+.eqc.res b{font-size:2.6rem!important}
+.eq .op{font-size:1.6rem!important}
+.equp{font-size:.7rem!important}
+.bonus20{padding:8px 12px 8px!important}
+.bonus20 .bt b{font-size:.92rem!important}
+.bonus20 .bv{font-size:1.45rem!important}
+.oya{min-height:26px;display:flex!important;align-items:center;gap:6px;margin:-2px 0 0!important;flex-wrap:nowrap!important;min-width:0}
+.oya.none{visibility:hidden}
+.oya b{flex:none;font-size:.9rem!important;padding:0 9px!important}
+.oya span{font-size:.66rem!important;white-space:nowrap;overflow:hidden;min-width:0;line-height:1.2}
+.mchip{font-size:.62rem;font-weight:800;background:linear-gradient(135deg,#5a3d00,#b8891a);color:#fff3c4;border-radius:6px;padding:2px 7px;cursor:help;border:1px solid #f7c948}
+.mchip.done{background:#f7c948;color:#2a1d00}
+.mlist{display:flex;flex-direction:column;gap:6px}
+.mcard{position:relative;display:flex;flex-direction:column;gap:2px;text-align:left;border-radius:12px;padding:8px 12px;background:linear-gradient(135deg,#3a2808,#5a3d00 60%,#7a5410);border:2px solid #b8891a;color:#fff;min-width:0;font-weight:400}
+.mcard b{font-family:var(--display);font-weight:400;font-size:.95rem;padding-right:70px;color:#fff3c4}
+.mcard small{font-size:.72rem;color:#e8dcc0;line-height:1.45;overflow-wrap:anywhere}
+.mcard .mx{position:absolute;top:7px;right:8px;font-family:var(--display);font-size:.8rem;color:#2a1d00;background:#f7c948;border-radius:99px;padding:1px 8px;white-space:nowrap}
+.mcard.done{background:linear-gradient(135deg,#b8891a,#f7c948);border-color:#fff3c4}
+.mcard.done b,.mcard.done small{color:#2a1d00}
+.mcard.done .mx{background:#2a1d00;color:#f7c948}
+.mcard.own{box-shadow:0 0 0 2px #fff}
+.mcard.pick{cursor:pointer;padding:12px 14px}
+.mcard.pick:hover:not(:disabled){border-color:#fff3c4;box-shadow:0 0 16px rgba(247,201,72,.6)}
+.mcard.pick.on{border-color:#fff;box-shadow:0 0 0 3px var(--gold)}
+.moffers{display:flex;flex-direction:column;gap:8px}
+.mbar{position:relative;height:12px;border-radius:6px;background:rgba(0,0,0,.4);overflow:hidden;margin-top:3px}
+.mbar i{position:absolute;inset:0 auto 0 0;background:#f7c948}
+.mbar em{position:relative;display:block;text-align:center;font-style:normal;font-size:.58rem;font-weight:800;line-height:12px;color:#fff}
+.mdrop{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:.8rem}
+.mpop{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:19;min-width:260px;text-align:center;padding:16px 26px;border-radius:16px;background:linear-gradient(135deg,#5a3d00,#b8891a 45%,#f7c948 60%,#8a5e00);border:3px solid #fff3c4;box-shadow:0 0 40px rgba(247,201,72,.8);color:#fff;overflow:hidden;animation:mpop 2.2s cubic-bezier(.2,1.4,.4,1) forwards;pointer-events:none}
+.mpop small{display:block;font-weight:800;font-size:.8rem}
+.mpop b{display:block;font-family:var(--display);font-weight:400;font-size:1.6rem;text-shadow:0 2px 0 #5a3d00}
+.mpop strong{display:block;font-family:var(--display);font-weight:400;font-size:2.2rem;text-shadow:0 3px 0 #5a3d00,0 0 16px #fff3c4}
+.mpop .rib{position:absolute;top:10px;right:-30px;transform:rotate(35deg);background:#ec4e5a;font-family:var(--display);font-size:.62rem;padding:2px 34px}
+@keyframes mpop{0%{transform:translate(-50%,-50%) scale(.3);opacity:0}15%{transform:translate(-50%,-50%) scale(1.1);opacity:1}25%{transform:translate(-50%,-50%) scale(1)}85%{opacity:1}100%{opacity:0;transform:translate(-50%,-70%)}}
+
+.roundbig{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.roundbig small{font-family:var(--display);font-size:.75rem;color:var(--gold);letter-spacing:.1em}
+.roundbig b{font-family:var(--display);font-weight:400;font-size:2.4rem;line-height:1;color:#fff;text-shadow:0 3px 0 var(--gold-d)}
+.roundbig b span{font-size:.45em;color:var(--muted);margin-left:2px}
+.roundbig .rtrack i{width:22px;height:22px;font-size:.7rem}
+.betneg{font-family:var(--display);font-size:1rem;color:#ff8a92;white-space:nowrap}
+.pcard.me .betneg{font-size:1.25rem}
+.equp em.n{color:var(--stock)}
+.mcard{display:grid!important;grid-template-columns:44px minmax(0,1fr);gap:10px;align-items:start;border-color:var(--mc)!important;background:linear-gradient(135deg,#221c2e,#2c2416 70%)!important}
+.mcard.done{background:linear-gradient(135deg,#b8891a,#f7c948)!important}
+.mcard.done small,.mcard.done b{color:#2a1d00!important}
+.memb{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.35),transparent 60%),var(--mc);box-shadow:inset 0 -3px 0 rgba(0,0,0,.3),0 0 12px var(--mc);color:#14121c;font-family:var(--display)}
+.memb.big{width:64px;height:64px;font-size:2.2rem;margin:0 auto 4px;border-radius:16px}
+.mbody{display:flex;flex-direction:column;gap:3px;min-width:0}
+.mhead{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
+.mcard b{padding-right:0!important;color:#fff}
+.mcard .mx{position:static!important;margin-left:auto}
+.mstars{color:var(--gold);font-size:.7rem;letter-spacing:-.05em}
+.mvis{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:3px}
+.mv{font-style:normal;font-size:.72rem;color:#e8dcc0}
+.mv b{color:var(--gold)!important;font-family:var(--display);font-weight:400;font-size:.95rem}
+.mv.ok{color:#8ff0bc;font-weight:800}.mv.ng{color:var(--muted)}
+.pips{display:flex;gap:4px;flex-wrap:wrap}
+.pips i{min-width:22px;height:22px;border-radius:6px;border:2px dashed rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-style:normal;font-size:.75rem;color:rgba(255,255,255,.25);font-family:var(--display);padding:0 3px}
+.pips i.on{border-style:solid;border-color:var(--mc);background:var(--mc);color:#14121c;box-shadow:0 0 10px var(--mc)}
+.pips.seg i{min-width:14px;width:14px;height:14px;border-radius:3px}
+.dice{width:26px;height:26px;border-radius:6px;background:#fff;color:#14121c;font-family:var(--display);display:flex;align-items:center;justify-content:center}
+.rbw{display:flex;gap:4px}
+.rbw i{width:24px;height:24px;border-radius:6px;font-style:normal;font-size:.75rem;display:flex;align-items:center;justify-content:center;color:#14121c;font-weight:800;opacity:.3;border:2px dashed #fff}
+.rbw i.on{opacity:1;border-style:solid;box-shadow:0 0 8px #fff}
+.cdot{width:18px;height:18px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-size:.55rem;color:#14121c;border:1px solid #fff}
+.mgauge{position:relative;flex:1;min-width:120px;height:16px;border-radius:8px;background:rgba(0,0,0,.4);overflow:hidden}
+.mgauge i{position:absolute;inset:0 auto 0 0;background:var(--mc)}
+.mgauge em{position:relative;display:block;text-align:center;font-style:normal;font-size:.62rem;font-weight:800;line-height:16px;color:#fff;text-shadow:0 1px 0 #000}
+.mchip{display:inline-flex;align-items:center;gap:3px;border-color:var(--mc)!important}
+.mchip i{font-style:normal}
+.mchip u{text-decoration:none;font-size:.56rem;background:rgba(0,0,0,.35);border-radius:4px;padding:0 3px;margin-left:2px}
+.mcard.pick{text-align:left}
+.mlvup{color:var(--gold)!important;font-size:.66rem!important}
+.mpop small{margin-top:2px}
+
+/* ===== レイアウト:プレイヤーは上に横並び、盤は画面の高さに合わせ、操作パネルは常に見える ===== */
+.main3{grid-template-columns:minmax(0,1fr) 340px!important;gap:12px!important}
+.leftcol{grid-column:1/-1!important}
+.players{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))!important;gap:8px!important}
+.pcard{padding:7px 10px!important;gap:3px!important}
+.pcard .oya{min-height:20px!important}
+.pcard .oya b{font-size:.78rem!important}
+.coinrow b{font-size:1.35rem!important}
+.pcard.me .coinrow b{font-size:1.7rem!important}
+.coinrow .cicn{width:18px!important;height:18px!important}
+.pcard.me .coinrow .cicn{width:24px!important;height:24px!important}
+.pendrow b{font-size:.95rem!important}
+.pcard.me .pendrow b{font-size:1.1rem!important}
+.pcard .ch{gap:3px!important}
+.mchip{font-size:.58rem!important;padding:1px 5px!important}
+.boardwrap{margin:0!important;justify-self:center;width:100%}
+.side{position:sticky;top:8px;max-height:calc(100dvh - 16px);overflow-y:auto;overscroll-behavior:contain}
+.topfoot{display:flex;gap:6px;flex-wrap:wrap;order:3;margin-left:auto}
+.topfoot button{padding:4px 10px;font-size:.74rem}
+.topbar .timer{flex:1 1 200px}
+.actions{display:flex;flex-direction:column;gap:8px}
+@media (max-width:760px){
+  .main3{grid-template-columns:1fr!important}
+  .players{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .side{position:static;max-height:none;overflow:visible}
+  .actions{position:fixed;left:0;right:0;bottom:0;z-index:12;padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:rgba(20,18,28,.96);border-top:2px solid var(--gold-d);box-shadow:0 -8px 24px rgba(0,0,0,.5);border-radius:0;margin:0}
+  .check.actions{border-left:0;border-right:0;border-bottom:0}
+  body{padding-bottom:150px!important}
+}
+
+.dcount.nums small{color:var(--muted);margin-right:2px}
+.dcount b.dn{font-family:var(--display);font-weight:400;background:#fff;color:#14121c;border-radius:4px;padding:0 5px;font-size:.7rem}
+.dnums{display:flex;gap:3px;flex-wrap:wrap}
+.dnums i{position:relative;width:22px;height:22px;border-radius:5px;border:2px dashed rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-style:normal;font-family:var(--display);font-size:.8rem;color:rgba(255,255,255,.3)}
+.dnums i.on{background:#fff;color:#14121c;border:2px solid var(--mc);box-shadow:0 0 8px var(--mc)}
+.dnums.own i.on{background:var(--oc)}
+.dnums i u{position:absolute;right:-4px;top:-6px;text-decoration:none;font-size:.55rem;background:var(--mc);color:#14121c;border-radius:6px;padding:0 3px;font-family:var(--body);font-weight:800}
+.dnums i u:empty{display:none}
+.dice.lucky{background:var(--mc);box-shadow:0 0 10px var(--mc)}
+.pips.small i{font-size:.6rem}
+
+/* 横幅が広い画面:左にプレイヤー(縦に詰めて表示)、中央に盤、右に操作 */
+@media (min-width:1200px){
+  .main3{grid-template-columns:240px minmax(0,1fr) 340px!important}
+  .leftcol{grid-column:auto!important;position:sticky;top:8px;overflow-y:auto;overscroll-behavior:contain}
+  .players{grid-template-columns:1fr!important;gap:6px!important}
+  .pcard{gap:2px!important;padding:6px 9px!important}
+  .pcard .top{row-gap:2px}
+  .pcard .st{font-size:.58rem;padding:1px 5px}
+  .pcard .ch .none{display:none}
+}
+.page{max-width:1560px!important}
+.pcard .top b{font-size:.86rem}
+
+.tile .startlbl{position:absolute;left:50%;bottom:2px;transform:translateX(-50%);font-family:var(--display);font-size:clamp(.38rem,1.05vw,.6rem);color:#14121c;background:#fff;border-radius:4px;padding:0 3px;line-height:1.3;z-index:2;white-space:nowrap;box-shadow:0 0 0 2px var(--gold)}
+.tile.start-mark{outline:3px solid #fff!important;outline-offset:-3px;box-shadow:0 0 12px rgba(255,255,255,.6)!important}
+.hrow{flex-wrap:wrap!important;justify-content:flex-start}
+.hist .hrow i{flex:none;font-family:var(--display);font-size:.62rem!important;color:#14121c!important;font-style:normal}
+.hist .hrow i.o{color:#fff!important}
+.dcount{flex-wrap:wrap}
+.dcount>small{color:var(--muted);font-size:.66rem;min-width:2.2em}
+.tile.start-mark.dim{opacity:.8}
+
+.tile.hidden{background:#2a2633!important;color:#55506a;font-family:var(--display);font-size:clamp(.6rem,1.8vw,1rem);opacity:1!important;box-shadow:inset 0 0 0 1px #3a3448}
+
+/* ===== 画面がガクつかないレイアウト:ページ全体を画面の高さに固定し、各列の中だけをスクロールさせる ===== */
+html{scrollbar-gutter:stable;overflow-x:hidden}
+/* 盤の中の演出(拡大する文字など)が盤の外にはみ出して、ページの大きさを変えないようにする */
+.boardwrap{overflow:hidden!important;contain:paint}
+.overlay,.modal{overscroll-behavior:contain}
+.hist{height:96px!important;min-height:0!important;overflow:hidden;box-sizing:border-box}
+.hrow{height:44px;overflow:hidden;align-content:flex-start}
+@media (min-width:761px){
+  html,body{height:100%}
+  body{overflow-y:auto;overflow-x:hidden;padding-block:12px 12px!important}
+  .page{height:calc(100dvh - 24px);display:flex;flex-direction:column;gap:10px;min-height:0}
+  .topbar{flex:none}
+  .main3{flex:1 1 auto;min-height:0;align-items:stretch!important;grid-template-rows:auto minmax(0,1fr)}
+  .leftcol{min-height:0;overflow-y:auto;overscroll-behavior:contain;position:static!important;max-height:none!important;grid-row:1;align-self:start}
+  .boardwrap{grid-row:2;align-self:start}
+  .side{grid-row:2;position:static!important;max-height:none!important;min-height:0;overflow-y:auto;overscroll-behavior:contain;align-self:stretch}
+}
+@media (min-width:1200px){
+  .main3{grid-template-rows:minmax(0,1fr)!important}
+  .leftcol{grid-row:1;grid-column:1!important;align-self:stretch;max-height:none!important}
+  .boardwrap,.side{grid-row:1}
+}
 </style>
 </head>
 <body>
 <div class="page" id="page">
   <div class="topbar">
-    <div class="stat"><small>ラウンド <span id="tRound"></span></small><div class="rtrack" id="rtrack"></div></div>
-    <div class="stat"><small>ルーレット</small><b id="tSpin">-</b></div>
-    <div class="stat"><small>オッズ</small><b id="tOdds" style="color:var(--stock)">×5</b></div>
-    <div class="stat"><small>親番(=UPの色)</small><b id="tDealer" style="display:flex;gap:5px;align-items:center;font-size:.95rem;font-family:var(--body);font-weight:800"></b></div>
-    <b id="tUp" hidden></b>
+    <div class="roundbig"><small>ROUND</small><b id="tRound">-</b><div class="rtrack" id="rtrack"></div></div>
+    <div hidden><b id="tSpin"></b><b id="tOdds"></b><b id="tDealer"></b><b id="tUp"></b><b id="tRoom"></b></div>
+    <div class="foot topfoot" style="gap:8px"><button id="dexBtn">一覧</button><button id="setBtn">設定</button><button id="bgm" aria-pressed="true">BGM:ON</button><button id="snd" aria-pressed="true">音:ON</button></div>
     <div class="timer"><div class="row" style="display:flex;justify-content:space-between;color:var(--muted)"><span id="tPhase">待機中</span><span id="tLeft"></span></div><div class="tbar" id="tbar"><i id="tfill"></i></div></div>
-    <div class="stat"><small>部屋</small><b id="tRoom" style="color:var(--gold)">-</b></div>
   </div>
 
   <div class="main3">
@@ -523,7 +715,6 @@ html.low .rays,html.low .crack,html.low .flashw{display:none}
       <div class="gekibadge" id="geki" hidden></div>
       <div id="panel"></div>
       <div class="log2" id="log" hidden></div>
-      <div class="foot" style="gap:8px"><button id="dexBtn">図鑑</button><button id="setBtn">設定</button><button id="bgm" aria-pressed="true">BGM:ON</button><button id="snd" aria-pressed="true">音:ON</button></div>
     </div>
   </div>
 </div>
@@ -552,7 +743,7 @@ const fmtS=n=>{n=Math.round(n);const u=[[1e12,"兆"],[1e8,"億"],[1e4,"万"]];fo
 const tierOf=n=>n>=10?Math.min(12,Math.floor(Math.log10(n)+1e-9)):0;
 const TIERN=["","当たり!","大当たり!!","超大当たり!!!","JACKPOT!!!!","MEGA JACKPOT","GIGA JACKPOT","TERA JACKPOT","億り人!!","十億の夢","百億の神","千億の神話","1兆 伝説!!!"];
 const maxRound=()=>G.maxRound||8;
-const isShopRound=r=>G.cycle&&r%G.cycle===0&&r<maxRound();
+const isShopRound=r=>r===Math.floor(maxRound()/2)&&r<maxRound(); /* ボーナス選択はラウンドの折り返しで1回だけ */
 const T_BET=20000, T_CHECK=10000, T_SHOP=60000;
 const $=id=>document.getElementById(id);
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
@@ -632,7 +823,10 @@ const pEach=(p,hook,fn)=>p.charms.forEach(c=>{const d=CHARMS[c.id];if(d&&d[hook]
 const pDw=(p,k)=>p.charms.filter(c=>c.dw===k).length;
 const cpOf=p=>Math.min(5,...p.charms.filter(c=>cOn(p,c)).map(c=>CHARMS[c.id].cp||5));
 const safeOf=p=>Math.max(SAFE_SPINS,...p.charms.filter(c=>cOn(p,c)).map(c=>CHARMS[c.id].safeTo||0));
-const oddsOf=p=>oddsAt(G.oi+p.ob)+p.heat;
+/* オッズ:ふつうは2の倍数(2→4→6→8…)、親は3の倍数(3→6→9…)。UPの色に止まるたびに1段上がる */
+const oddsBase=p=>p&&G.dealer===p.id?3:2;
+const oddsOf=p=>oddsBase(p)*(1+G.oi)+(p.ob||0)+(p.heat||0);
+const oddsNextOf=p=>oddsBase(p)*(2+G.oi)+(p.ob||0)+(p.heat||0);
 
 /* ================= 音 ================= */
 let AC=null,soundOn=true;
@@ -690,7 +884,7 @@ function clientJoin(name,code){
 function clientRecv(msg){
   if(msg.t==="welcome"){NET.me=msg.id;return}
   if(msg.t==="reject"){lobbyError(msg.why);return}
-  if(msg.t==="state"){G=msg.s;G._recv=Date.now();if(G.phase==="lobby")lobbyGuest();else hideModal();view();return}
+  if(msg.t==="state"){G=msg.s;G._recv=Date.now();if(G.phase==="lobby")lobbyGuest();else if(MODAL_KIND==="lobby")hideModal();view();return}
   if(msg.t==="ev")playEv(msg.ev);
 }
 function send(a){if(NET.host)hostAct(NET.me,a);else NET.hostConn&&NET.hostConn.open&&NET.hostConn.send({t:"act",...a})}
@@ -716,7 +910,7 @@ function newBoard(){
 function addPlayer(id,name,bot){
   name=(name||"プレイヤー").slice(0,10);
   let tag=name[0];if(G.players.some(x=>x.tag===tag))tag=name[0]+(G.players.length+1);
-  G.players.push({id,name,tag,bot,online:true,alive:true,medals:START_MEDALS,charms:[],
+  G.players.push({id,name,tag,bot,online:true,alive:true,medals:START_MEDALS,charms:[],missions:[],ms:null,
     color:null,want:null,bet:5,bought:[],locked:false,stock:0,status:"wait",hits:0,heat:0,ob:0,dollLeft:0,piggy:0,
     deciding:false,decision:null,offers:[],reroll:5,ready:false,lastGain:0});
 }
@@ -736,7 +930,8 @@ function hostAct(pid,a){
   }
   if(G.phase==="check"&&p.deciding&&a.a==="decide"){p.decision=a.v;p.deciding=false;pushState();if(!G.players.some(x=>x.deciding))wake()}
   if(G.phase==="shop"&&p.alive&&!p.ready){
-    if(a.a==="buy"){const o=p.offers[a.k];if(o)o.price=costOf(p,o);if(o&&!o.sold&&p.bought.length<1&&p.medals>=o.price&&p.charms.length<5){p.medals-=o.price;o.sold=true;p.charms.push({id:o.id,dw:o.dw,life:o.dw==="fragile"?3:null});p.bought.push(o.id);log(`${p.name} が「${CHARMS[o.id].n}」を買った(デメリット:${DRAWBACKS[o.dw].d})`);if(o.id==="doll")p.dollLeft=2}}
+    if(a.a==="mpick"&&p.offers[a.k]&&(p.missions.length<MAXM||a.drop!=null)){if(a.drop!=null)p.missions.splice(a.drop,1);const id=p.offers[a.k].id;p.missions.push(id);p.picked=id;p.ready=true;log(`${p.name} がボーナス「${MISSIONS[id].n}」を選んだ`)}
+    if(a.a==="buy"&&false){const o=p.offers[a.k];if(o&&!o.sold){p.medals-=o.price;o.sold=true;p.charms.push({id:o.id,dw:o.dw,life:o.dw==="fragile"?3:null});p.bought.push(o.id);log(`${p.name} が「${CHARMS[o.id].n}」を買った(デメリット:${DRAWBACKS[o.dw].d})`);if(o.id==="doll")p.dollLeft=2}}
     if(a.a==="reroll"&&p.medals>=p.reroll){p.medals-=p.reroll;p.reroll+=3;rollOffers(p)}
     if(a.a==="ready")p.ready=true;
     pushState();if(alivePs().every(x=>x.ready))wake();
@@ -764,8 +959,7 @@ function botThink(){
     if(G.phase==="check"&&p.deciding)later(()=>{if(!p.deciding)return;
       const v=p.stock>=p.bet*8||(p.stock>0&&Math.random()<.4)?"cash":"cont";hostAct(p.id,{a:"decide",v})});
     if(G.phase==="shop"&&!p.ready)later(()=>{
-      const k=p.offers.findIndex(o=>!o.sold&&o.pct<=22);if(k>=0&&Math.random()<.6)hostAct(p.id,{a:"buy",k});
-      hostAct(p.id,{a:"ready"})});
+      if(p.missions.length<MAXM)hostAct(p.id,{a:"mpick",k:Math.random()*p.offers.length|0});else hostAct(p.id,{a:"ready"})});
   });
 }
 
@@ -784,9 +978,10 @@ async function runGame(){
   finish("最大ラウンド終了");
 }
 async function betPhase(){
-  G.phase="bet";G.spin=0;G.oi=0;G.laps=0;G.ups=[];G.dealer=null;if(G.hist&&G.hist.length)G.hist.push("R");
+  G.phase="bet";G.spin=0;G.oi=0;G.laps=0;G.ups=[];G.dealer=null;G.anyHit=false;G.lastD=null;
+  G.boardHidden=true;G.pos=0;if(G.hist&&G.hist.length)G.hist.push("R");
   alivePs().forEach(p=>{p.locked=false;if(G.round===1){p.want=null;p.color=null}else p.want=p.color;
-    p.status="wait";p.stock=0;p.hits=0;p.heat=0;p.ob=0;p.rcash=0;p.rlost=0;
+    p.status="wait";p.ms=null;p.stock=0;p.hits=0;p.heat=0;p.ob=0;p.rcash=0;p.rlost=0;
     p.dollLeft=pHas(p,"doll")?2:0;p.lastGain=0;
     const tx=pDw(p,"tax");if(tx&&p.medals>0){const l=Math.floor(p.medals*.05*tx);p.medals-=l;if(l)log(`${p.name}:維持費 -${fmtN(l)}枚`)}
     if(p.phoenix){p.medals+=p.phoenix;log(`${p.name}:不死鳥で ${fmtN(p.phoenix)}枚を取り戻した`);bcastEv({k:"charm",id:p.id,cs:["phoenix"],txt:`+${fmtN(p.phoenix)}`});p.phoenix=0}
@@ -816,6 +1011,8 @@ async function resolveColors(){
     log(`${p.name} は ${COLORS[p.color].n} になった`);
   });
   ps.forEach(p=>{p.betBase=p.medals;p.medals-=p.bet;p.status="active"});
+  // 全員の色が決まってから、盤の色の並びを決める
+  G.board=newBoard();G.pos=0;G.boardHidden=false;pushState();bcastEv({k:"shuffle"});await wait(1500);
   // 親番:順番に回る。親の色がUPの色になる
   const n=G.players.length;let dealer=null;
   for(let k=0;k<n;k++){const q=G.players[n-1-((G.round-1+k)%n)];if(q.alive){dealer=q;break}}
@@ -868,6 +1065,8 @@ function landing(d,laps){
   G.dcount=G.dcount||[0,0,0,0,0,0];G.dcount[d-1]++;
   if(c===OUT&&G.spin<=SAFE_SPINS){
     log(`${G.spin}回目:OUTに止まったが、3回目まではセーフ`);
+    G.dcount=G.dcount||[0,0,0,0,0,0];G.dcount[d-1]++;
+    activePs().forEach(p=>{const ms=mState(p);mDice(p,d,false);ms.streak=0;mCheck(p,"safe",true);mCheck(p,"zoro",G.lastD===d);mProgress(p)});G.lastD=d;
     bcastEv({k:"land",c,d,res:[],safe:true});return;
   }
   const hitters=[];
@@ -895,8 +1094,18 @@ function landing(d,laps){
       res.push({id:p.id,t:`当たり +${fmtN(w)}(${fmtN(p.bet)}×${fmtN(oddsOf(p))}${notes.length?"、"+notes.join("、"):""})`,gain:w,fx});
     }else if(fx.length)res.push({id:p.id,t:"",fx});
     if(G.ups.includes(c))pEach(p,"upHit",(df,cc)=>res.push({id:p.id,t:`${df.n} ${df.upHit(p)}`,fx:[cc.id]}));
-    if(c!==OUT&&G.ups.includes(c)&&c===p.color){p.ob+=1;res.push({id:p.id,t:"UP色が自分の色:オッズUPが2倍(自分だけさらに1段UP)",upBonus:true})}
   });
+  // ボーナス条件
+  const firstHit=hitters.length&&!G.anyHit;if(hitters.length)G.anyHit=true;
+  activePs().forEach(p=>{const ms=mState(p);
+    ms.laps+=laps;mDice(p,d,c===p.color);if(c!==OUT&&!ms.seen.includes(c))ms.seen.push(c);
+    const hit=c===p.color;if(hit){ms.hits++;ms.streak++}else ms.streak=0;
+    if(c!==OUT&&G.ups.includes(c))ms.ups++;
+    mCheck(p,"first",firstHit&&hit);mCheck(p,"zoro",G.lastD===d);mCheck(p,"lap1",laps>0);
+    mCheck(p,"cliff",hit&&(G.board[(i+1)%N]===OUT||G.board[(i-1+N)%N]===OUT));
+    mCheck(p,"fat",p.stock>=p.bet*60);
+    mProgress(p)});
+  G.lastD=d;
   // 横取り
   hitters.forEach(({p:h,w})=>activePs().forEach(p=>{if(p===h)return;pEach(p,"steal",(df,cc)=>{const v=Math.floor(w*df.steal);if(v){p.stock+=v;res.push({id:p.id,t:`横取り:${h.name}から +${fmtN(v)}`,fx:[cc.id],steal:v})}})}));
   if(c!==OUT&&G.ups.includes(c)){upHit=true;G.oi++}
@@ -910,14 +1119,17 @@ function doCash(p,why){
   pEach(p,"cashMul",()=>{});p.charms.filter(cc=>cOn(p,cc)&&CHARMS[cc.id].cashMul).forEach(cc=>{const v=Math.floor(g*CHARMS[cc.id].cashMul);g+=v;fx.push(cc.id);notes.push(`${CHARMS[cc.id].n}+${fmtN(v)}`)});
   if(fx.length)bcastEv({k:"charm",id:p.id,cs:fx,txt:notes.join(" ")});
   p.medals+=g;p.status="cashed";p.lastGain=g;p.rcash=g;
+  setTimeout(()=>{mCheck(p,"quick",G.spin===5&&!why);mCheck(p,"big",p.bet>=(p.betBase||0)*.5);pushState()},50);
   log(`${p.name}:${why||"利確"} +${fmtN(g)}枚${notes.length?"("+notes.join("、")+")":""}`);
   bcastEv({k:"cash",id:p.id,g});
   p.stock=0;
 }
-function doCont(p){pEach(p,"cont",(df,cc)=>{log(`${p.name}:${df.n} ${df.cont(p)}`);bcastEv({k:"charm",id:p.id,cs:[cc.id],txt:"未確定×1.5"})})}
+function doCont(p){mState(p).conts++;mProgress(p);pEach(p,"cont",(df,cc)=>{log(`${p.name}:${df.n} ${df.cont(p)}`);bcastEv({k:"charm",id:p.id,cs:[cc.id],txt:"未確定×1.5"})})}
 function roundEnd(){
   G.phase="roundEnd";setDeadline(0);G.oi=0;G.ups=[];G.spin=0;
   const rv=p=>p.status==="cashed"?p.rcash:0,best=Math.max(0,...alivePs().map(rv));
+  {const al=alivePs(),minStart=Math.min(...al.map(q=>q.betBase||q.medals));
+   al.forEach(p=>mCheck(p,"low",al.length>1&&(p.betBase||p.medals)===minStart&&rv(p)>0&&rv(p)===best))}
   alivePs().forEach(p=>{
     const lost=[];
     p.charms=p.charms.filter(c=>{
@@ -935,6 +1147,90 @@ function roundEnd(){
   if(G.round>=maxRound()){finish(`${maxRound()}ラウンド生き残った`);return true}
   return false;
 }
+
+/* =========================================================
+   ボーナス条件(お守りの代わり)。条件を達成すると「賭け×倍率」のコインがもらえる。
+   ショップで3つから1つを無料で選ぶ。最大4つ。各ボーナスは1ラウンドに1回まで。
+   ========================================================= */
+const MAXM=4;
+const MISSIONS={
+  hat3:{n:"三連星",em:"★",col:"#f5c84c",d:"1ラウンドで自分の色に3回止まる",x:20,goal:3,prog:m=>m.hits,
+    vis:(m,p)=>pips(3,m.hits,"★","star")},
+  combo2:{n:"連続ヒット",em:"⚡",col:"#ff8a3d",d:"自分の色に2回連続で止まる",x:25,goal:2,prog:m=>m.streak,
+    vis:(m,p)=>pips(2,m.streak,"⚡","bolt")+`<em class="mv">${m.streak?"次も当たれば達成!":"当たったら次が勝負"}</em>`},
+  first:{n:"一番乗り",em:"🏁",col:"#3fbf7f",d:"そのラウンドで最初に当たった人になる",x:10,
+    vis:()=>`<em class="mv ${G.anyHit?"ng":"ok"}">${G.anyHit?"もう誰かが当たった":"まだ誰も当たっていない!"}</em>`},
+  zoro:{n:"ゾロ目",em:"🎲",col:"#a970ff",d:"同じ数字が2回続けて出る",x:12,
+    vis:()=>G.lastD?`<span class="dice">${G.lastD}</span><em class="mv">次も <b>${G.lastD}</b> なら達成</em>`:`<em class="mv">まだ数字が出ていない</em>`},
+  six3:{n:"6の嵐",em:"⚅",col:"#3e8ef7",d:"1ラウンドで6が3回出る",x:15,goal:3,prog:m=>m.sixes,
+    vis:m=>pips(3,m.sixes,"6","dice6")},
+  lap1:{n:"一周",em:"↻",col:"#4fd6e8",d:"START(左上の白いマス)を通過する",x:10,
+    vis:()=>`<em class="mv">START(左上)まであと <b>${toStart()}</b>マス</em>`},
+  lap2:{n:"マラソン",em:"🏃",col:"#4fd6e8",d:"1ラウンドで2周する(START=左上の白いマス)",x:35,goal:2,prog:m=>m.laps,
+    vis:m=>pips(2,m.laps,"周","lap")+`<em class="mv">STARTまで <b>${toStart()}</b>マス</em>`},
+  cliff:{n:"崖っぷち",em:"⛰",col:"#e0606b",d:"OUTのとなりにある自分の色に止まる",x:15,
+    vis:(m,p)=>`<em class="mv">狙えるマス <b>${cliffTiles(p)}</b>個(OUTのとなり)</em>`},
+  oya3:{n:"親の意地",em:"👑",col:"#f7c948",d:"自分が親のラウンドで3回当たる",x:30,goal:3,prog:(m,p)=>G.dealer===p.id?m.hits:0,
+    vis:(m,p)=>G.dealer===p.id?pips(3,m.hits,"👑","crown"):`<em class="mv">自分が親のラウンドで狙える</em>`},
+  surv10:{n:"粘り腰",em:"🛡",col:"#3fbf7f",d:"10回目まで生き残る",x:15,goal:10,prog:()=>G.spin,
+    vis:()=>pips(10,Math.min(10,G.spin),"","seg")},
+  nerve2:{n:"度胸",em:"🔥",col:"#ec4e5a",d:"利確チャンスで2回「続ける」を選ぶ",x:18,goal:2,prog:m=>m.conts,
+    vis:m=>pips(2,m.conts,"🔥","flame")},
+  quick:{n:"逃げ足",em:"💨",col:"#c9c4d8",d:"5回目の利確チャンスで利確する",x:8,
+    vis:()=>`<em class="mv">${G.spin<5?`利確チャンスまであと <b>${5-G.spin}</b>回`:G.spin===5?"今が利確のとき!":"今回は終了"}</em>`},
+  fat:{n:"大物",em:"🐋",col:"#3e8ef7",d:"未確定コインが賭けの60倍を超える",x:20,
+    vis:(m,p)=>gauge(p.stock,p.bet*60)},
+  uphunt:{n:"UPハンター",em:"🎯",col:"#f7c948",d:"1ラウンドでUPの色に2回止まる",x:12,goal:2,prog:m=>m.ups,
+    vis:m=>pips(2,m.ups,"UP","up")+(G.ups.length?`<i class="cdot" style="background:${COLORS[G.ups[0]].v}">${sym(G.ups[0])}</i><em class="mv">${COLORS[G.ups[0]].n}に止まる</em>`:"")},
+  rainbow:{n:"全色制覇",em:"🌈",col:"#a970ff",d:"1ラウンドで5色すべてが出る(参加中に)",x:30,goal:5,prog:m=>m.seen.length,
+    vis:m=>`<span class="rbw">${COLORS.map((c,k)=>`<i class="${m.seen.includes(k)?"on":""}" style="background:${c.v}">${m.seen.includes(k)?"✓":sym(k)||"?"}</i>`).join("")}</span><em class="mv">${m.seen.length<5?`あと ${COLORS.filter((c,k)=>!m.seen.includes(k)).map(c=>c.n).join("・")}`:"コンプリート!"}</em>`},
+  safe:{n:"ヒヤリ",em:"😱",col:"#f1eefa",d:"SAFEのOUTに止まる(1〜3回目)",x:10,
+    vis:()=>`<em class="mv">${G.spin<SAFE_SPINS?`SAFEはあと <b>${SAFE_SPINS-G.spin}</b>回`:"今回はもう狙えない"}</em>`},
+  low:{n:"一発逆転",em:"🔄",col:"#ff8a3d",d:"所持コインが最下位の状態で、そのラウンドの収支1位になる",x:40,
+    vis:(m,p)=>{const al=alivePs(),me=p.betBase||p.medals,isLow=al.length>1&&al.every(q=>(q.betBase||q.medals)>=me);return `<em class="mv ${isLow?"ok":"ng"}">${isLow?"あなたは最下位。逆転のチャンス!":"最下位のときだけ狙える"}</em>`}},
+  big:{n:"大勝負",em:"💰",col:"#f7c948",d:"所持コインの半分以上を賭けて利確する",x:15,
+    vis:(m,p)=>{const need=Math.ceil((p.betBase||p.medals)*.5);return `<em class="mv ${p.bet>=need?"ok":"ng"}">賭け ${fmtN(p.bet)} / 必要 ${fmtN(need)}</em>`}},
+  numall:{n:"数字コンプ",em:"🔢",col:"#4fd6e8",d:"1ラウンドで1〜6がすべて出る(参加中に)",x:30,goal:6,prog:m=>m.dseen.length,
+    vis:m=>`<span class="dnums">${[1,2,3,4,5,6].map(k=>`<i class="${m.dseen.includes(k)?"on":""}">${k}</i>`).join("")}</span>`},
+  pita:{n:"ピタリ賞",em:"🍀",col:"#3fbf7f",d:"ラウンドごとに決まるラッキーナンバーで自分の色に止まる",x:25,
+    vis:(m,p)=>`<span class="dice lucky">${m.lucky}</span><em class="mv"><b>${m.lucky}</b>が出て${p.color!=null?`<i class="cdot" style="background:${COLORS[p.color].v}">${sym(p.color)}</i>`:""}に止まれば達成</em>`},
+  small3:{n:"ちょこちょこ",em:"🐾",col:"#c9c4d8",d:"1ラウンドで1か2が合計3回出る",x:12,goal:3,prog:m=>m.dc[0]+m.dc[1],
+    vis:m=>pips(3,m.dc[0]+m.dc[1],"1·2","small")},
+  sum30:{n:"大股",em:"🦵",col:"#ff8a3d",d:"1ラウンドで出た数字の合計が30以上",x:15,goal:30,prog:m=>m.sum,
+    vis:m=>gauge(m.sum,30)},
+  same3:{n:"トリプル",em:"🎰",col:"#ec4e5a",d:"1ラウンドで同じ数字が合計3回出る",x:12,goal:3,prog:m=>Math.max(...m.dc),
+    vis:m=>`<span class="dnums">${[1,2,3,4,5,6].map(k=>`<i class="${m.dc[k-1]?"on":""}">${k}<u>${m.dc[k-1]||""}</u></i>`).join("")}</span>`},
+  colnum:{n:"色と数字",em:"🎨",col:"#a970ff",d:"自分の色に、3種類の違う数字で止まる",x:20,goal:3,prog:m=>m.hitNums.length,
+    vis:(m,p)=>`<span class="dnums own" style="--oc:${p.color!=null?COLORS[p.color].v:"#888"}">${[1,2,3,4,5,6].map(k=>`<i class="${m.hitNums.includes(k)?"on":""}">${k}</i>`).join("")}</span><em class="mv">あと ${Math.max(0,3-m.hitNums.length)}種類</em>`},
+};
+function pips(n,k,ch,cls){return `<span class="pips ${cls}">${Array.from({length:n},(_,i)=>`<i class="${i<k?"on":""}">${ch}</i>`).join("")}</span>`}
+function gauge(v,max){const r=Math.min(1,v/Math.max(1,max));return `<span class="mgauge"><i style="width:${r*100}%"></i><em>${fmtN(v)} / ${fmtN(max)}</em></span>`}
+function toStart(){return ((N-(G.pos||0))%N)||N}
+function cliffTiles(p){let n=0;G.board.forEach((c,i)=>{if(c===p.color&&(G.board[(i+1)%N]===OUT||G.board[(i-1+N)%N]===OUT))n++});return n}
+/* 達成するたびにレベルが上がり、報酬が増える */
+const mLv=(p,id)=>(p.mlv&&p.mlv[id])||0;
+const mX=(p,id)=>{const M=MISSIONS[id];return M.x+mLv(p,id)*Math.ceil(M.x/4)};
+
+const MX={};
+function mState(p){return p.ms||(p.ms={hits:0,streak:0,sixes:0,laps:0,conts:0,ups:0,seen:[],done:{},dseen:[],dc:[0,0,0,0,0,0],sum:0,hitNums:[],lucky:1+(Math.random()*6|0)})}
+/* 出た数字の記録(ボーナス用) */
+function mDice(p,d,hit){const ms=mState(p);ms.dc[d-1]++;ms.sum+=d;if(d===6)ms.sixes++;if(!ms.dseen.includes(d))ms.dseen.push(d);
+  if(hit&&!ms.hitNums.includes(d))ms.hitNums.push(d);mCheck(p,"pita",hit&&d===ms.lucky)}
+function mGive(p,mid,why){
+  const ms=mState(p);if(ms.done[mid])return;ms.done[mid]=true;
+  const amt=p.bet*mX(p,mid);p.mlv=p.mlv||{};p.mlv[mid]=(p.mlv[mid]||0)+1;
+  if(p.status==="active")p.stock+=amt;else p.medals+=amt;
+  log(`${p.name}:ボーナス「${MISSIONS[mid].n}」達成 +${fmtN(amt)}枚`);
+  bcastEv({k:"mission",id:p.id,mid,amt,lv:p.mlv[mid],toStock:p.status==="active"});
+}
+const hasM=(p,mid)=>(p.missions||[]).includes(mid);
+function mCheck(p,mid,cond){if(cond&&hasM(p,mid))mGive(p,mid)}
+function mProgress(p){const ms=mState(p);(p.missions||[]).forEach(mid=>{const M=MISSIONS[mid];if(M.goal&&M.prog(ms,p)>=M.goal)mGive(p,mid)})}
+function rollMissionOffers(p){
+  const pool=shuffle(Object.keys(MISSIONS).filter(id=>!(p.missions||[]).includes(id))).slice(0,3);
+  p.offers=pool.map(id=>({id}));p.picked=null;
+}
+
 /* お守りの値段は「所持コインの○%」。ショップ1回につき1つだけ買える */
 const costOf=(p,o)=>Math.max(10,Math.floor(p.medals*o.pct/100));
 function rollOffers(p){
@@ -943,13 +1239,14 @@ function rollOffers(p){
 }
 async function shopPhase(){
   G.phase="shop";
-  alivePs().forEach(p=>{p.ready=false;p.reroll=5;p.bought=[];rollOffers(p);p.status="shop"});
-  log("ショップ:お守りを買える");
-  bcastEv({k:"say",text:"ショップ",color:"var(--gold)",ms:900});
+  alivePs().forEach(p=>{p.ready=false;rollMissionOffers(p);p.status="shop"});
+  log("ボーナス選択:3つから1つ無料で選べる");
+  bcastEv({k:"say",text:"ボーナス選択",color:"var(--gold)",ms:900});
   botThink();
   await waitPhase(T_SHOP);
-  bcastEv({k:"bought",list:alivePs().map(p=>({id:p.id,name:p.name,ids:p.bought}))});
-  await wait(3500);
+  alivePs().forEach(p=>{if(!p.picked&&p.missions.length<MAXM&&p.offers.length){const id=p.offers[0].id;p.missions.push(id);p.picked=id}});
+  bcastEv({k:"bought",list:alivePs().map(p=>({id:p.id,name:p.name,ids:p.picked?[p.picked]:[]}))});
+  await wait(2500);
 }
 function finish(why){
   G.phase="end";setDeadline(0);
@@ -973,12 +1270,15 @@ const meP=()=>G&&G.players.find(p=>p.id===NET.me);
 const whoOn=c=>G.players.filter(p=>p.alive&&(p.color===c||(G.phase==="bet"&&p.color==null&&p.want===c)));
 function paintBoard(){
   if(!G)return;const me=meP(),my=me&&me.alive&&me.status!=="out"&&me.status!=="cashed"?(me.color??me.want):null;
+  if(G.boardHidden){tiles.forEach((t,i)=>{t.className="tile hidden";t.textContent=i===0?"":"?";t.style.background="";
+      if(i===0){t.classList.add("start-mark");const st=document.createElement("span");st.className="startlbl";st.textContent="START";t.appendChild(st)}});
+    V.pos=0;tiles[0].appendChild(koma);drawWheel();return}
   tiles.forEach((t,i)=>{const c=G.board[i];t.className="tile";t.textContent="";t.style.background="";
-    if(i===0)t.classList.add("start-mark");
+    if(i===0){t.classList.add("start-mark");const st=document.createElement("span");st.className="startlbl";st.textContent="START";t.appendChild(st)}
     if(c===OUT){t.classList.add("out");if(isSafe()){t.classList.add("safe");t.textContent="SAFE"}else t.textContent="OUT";return}
     t.style.background=COLORS[c].v;if(OPT.cb){const sy=document.createElement("span");sy.className="sym";sy.textContent=COLORS[c].s;t.appendChild(sy)}
     if(my!=null)t.classList.add(c===my?"aim":"dim");
-    if(c===my&&me){const p=document.createElement("span");p.className="pay";p.textContent="+"+fmtS(me.bet*(G.phase==="bet"?ODDS[0]:oddsOf(me)));if(p.textContent.length>5)p.classList.add("long");t.appendChild(p)}
+    if(c===my&&me){const p=document.createElement("span");p.className="pay fit";p.textContent="+"+fmtS(me.bet*(G.phase==="bet"?2:oddsOf(me)));if(p.textContent.length>5)p.classList.add("long");t.appendChild(p)}
     if(G.ups.includes(c)&&G.phase!=="bet"){const u=document.createElement("i");u.className="upb";u.textContent="UP";t.appendChild(u)}
     const w=whoOn(c).filter(p=>p!==me).map(p=>p.tag).join("");if(w){const s=document.createElement("span");s.className="who";s.textContent=w;t.appendChild(s)}
   });
@@ -986,10 +1286,14 @@ function paintBoard(){
     for(let k=1;k<=6;k++){const sn=document.createElement("span");sn.className="stepn";sn.textContent=k;tiles[(V.pos+k)%N].appendChild(sn)}}
   tiles[V.pos].appendChild(koma);
   if(!V.anim)drawWheel();
+  fitBoard();
 }
 function drawWheel(){
   const pt=(r,a)=>`${(r*Math.sin(a*Math.PI/180)).toFixed(2)} ${(-r*Math.cos(a*Math.PI/180)).toFixed(2)}`;
   const me=meP(),my=me?(me.color??me.want):null;let g="";
+  if(G.boardHidden){for(let k=1;k<=6;k++){const a0=(k-1)*60,a1=k*60,am=a0+30,[x,y]=pt(62,am).split(" ");
+      g+=`<path d="M0 0 L${pt(92,a0)} A92 92 0 0 1 ${pt(92,a1)}Z" fill="#3a3448" stroke="var(--ink)" stroke-width="3"/><text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-family="Dela Gothic One, sans-serif" font-size="24" fill="#6b6876" transform="rotate(${am} ${x} ${y})">${k}</text>`}
+    $("wheel").innerHTML=`<svg viewBox="-100 -112 200 212" aria-label="ルーレット"><g id="wg" transform="rotate(${V.rot})">${g}</g><circle r="22" fill="var(--panel)" stroke="var(--ink)" stroke-width="3"/><text id="wnum" y="1" text-anchor="middle" dominant-baseline="central" font-family="Dela Gothic One, sans-serif" font-size="22" fill="var(--fg)">?</text><path d="M-11 -110 L11 -110 L0 -88Z" fill="var(--gold)" stroke="var(--ink)" stroke-width="3"/></svg>`;return}
   for(let k=1;k<=6;k++){
     const i=(V.pos+k)%N,c=G.board[i],a0=(k-1)*60,a1=k*60,am=a0+30;
     const sf=c===OUT&&isSafe();
@@ -1063,7 +1367,7 @@ function bulbs(m,ms){BULBS.mode=m;clearTimeout(BULBS.back);
 /* 画面のフラッシュ・光の筋・ひび */
 function flashScreen(color){if(OPT.low)return;const f=document.createElement("div");f.className="flashw";if(color)f.style.background=color;document.body.appendChild(f);setTimeout(()=>f.remove(),700)}
 function rays(){if(OPT.low)return;const r=$("rays");r.classList.remove("on");void r.offsetWidth;r.classList.add("on")}
-function shake(strong){if(OPT.low)return;const p=$("page");p.classList.remove("shake","shake2");void p.offsetWidth;p.classList.add(strong?"shake2":"shake")}
+function shake(strong){if(OPT.low||!$("overlay").hidden)return;const p=$("page");p.classList.remove("shake","shake2");void p.offsetWidth;p.classList.add(strong?"shake2":"shake")}
 function crack(){if(OPT.low)return;const d=document.createElement("div");d.className="crack";const cx=innerWidth/2,cy=innerHeight*.45;let path="";
   for(let k=0;k<9;k++){let x=cx,y=cy,a=k/9*Math.PI*2+Math.random()*.4;path+=`M${x} ${y}`;for(let s=0;s<6;s++){a+=(Math.random()-.5)*.7;x+=Math.cos(a)*(40+Math.random()*70);y+=Math.sin(a)*(40+Math.random()*70);path+=` L${x.toFixed(0)} ${y.toFixed(0)}`}}
   d.innerHTML=`<svg width="100%" height="100%"><path d="${path}" stroke="#fff" stroke-width="3" fill="none" opacity=".85"/><path d="${path}" stroke="#000" stroke-width="1" fill="none" transform="translate(2 2)" opacity=".6"/></svg>`;
@@ -1192,13 +1496,13 @@ async function playEv(ev){
       const T=Math.max(1,tierOf(mine.gain)),t=Math.min(4,T);
       celebrate(T,tc,colOf(ev.c));
       say(`${TIERN[T]}\n+${fmtN(mine.gain)}`,t===1?"var(--stock)":"#fff3c4",900+t*350,T>=5?"tier4 mega":"tier"+t);
-      if(ev.upHit){const bonus=mine.upBonus||ev.res.some(x=>x.id===NET.me&&x.upBonus);
-        setTimeout(()=>{sweep(400,1600,500);burst(tc.x,tc.y,HEX,90,10);say(bonus?"オッズUP\n2倍ボーナス!!":"オッズUP!",  "#fff",1100,"rainbow")},900+t*350)}
+      if(ev.upHit){const me3=meP(),dl=me3&&G.dealer===me3.id;
+        setTimeout(()=>{sweep(400,1600,500);burst(tc.x,tc.y,HEX,90,10);say(`オッズUP!\n×${fmtN(me3?oddsOf(me3):2)}${dl?"(親は+3)":"(+2)"}`,"#fff",1100,"rainbow")},900+t*350)}
       return;
     }
     if(ev.upHit){sweep(400,1600,500);jingle([659,880,1175,1568],70);burst(tc.x,tc.y,HEX,70,9);bulbs("win",1200);
       const o=$("tOdds");o.classList.remove("bump");void o.offsetWidth;o.classList.add("bump");
-      say(`オッズUP!\n×${fmtN(oddsAt(G.oi+1))}`,"#fff",1000,"rainbow");return}
+      {const me2=meP();say(`オッズUP!\n×${fmtN(me2?oddsNextOf(me2):2*(G.oi+2))}`,"#fff",1000,"rainbow")}return}
     burst(tc.x,tc.y,colOf(ev.c),18,5);
     const hitters=ev.res.filter(r=>r.gain).map(r=>P(r.id)?.name).filter(Boolean);
     const near=me&&me.status==="active"&&me.color!=null&&(G.board[(V.pos+1)%N]===me.color||G.board[(V.pos-1+N)%N]===me.color);
@@ -1211,15 +1515,24 @@ async function playEv(ev){
     const d=G.players.find(p=>p.name===ev.dealer);
     bulbs("win",1400);jingle([659,880,1175]);
     if(d)setTimeout(()=>{firePlayer(d.id);const card=document.querySelector(`.pcard[data-id="${CSS.escape(d.id)}"]`);if(card){const c=rectC(card);burst(c.x,c.y,[colOf(ev.color),"#f7c948","#fff"],40,7)}},80);
-    if(ev.owners.includes(NET.me)){fanfare(3);say("あなたが親!\nオッズUP 2倍","#fff",1600,"tier3")}
+    if(ev.owners.includes(NET.me)){fanfare(3);say("あなたが親!\nオッズ×3から+3ずつ","#fff",1600,"tier3")}
     else say(`親番 ${ev.dealer}\n${COLORS[ev.color].n}がUPの色`,COLORS[ev.color].v,1600,"tier2");
     return}
   if(ev.k==="bonus20"){firePlayer(ev.id);setTimeout(()=>popOn(ev.id,"+"+fmtN(ev.b),"s"),100);
     if(ev.id===NET.me){fanfare(3);rays();confetti(80);const c=rectC($("board"));fountain(c.x,c.y,40);say(`20回達成ボーナス\n+${fmtN(ev.b)}`,"#fff3c4",1400,"tier3")}
     else toast(`${P(ev.id)?.name||""} 20回達成ボーナス +${fmtN(ev.b)}`,"b");return}
+  if(ev.k==="shuffle"){V.pos=0;V.anim=false;tiles.forEach(t=>{t.classList.remove("land");void t.offsetWidth;t.classList.add("land")});
+    bulbs("spin",900);for(let k=0;k<8;k++)setTimeout(()=>beep(500+k*90,.04,"square",.03),k*70);
+    say("盤面が決まった!","#fff",1300,"tier2");return}
+  if(ev.k==="mission"){
+    const M=MISSIONS[ev.mid];firePlayer(ev.id);setTimeout(()=>popOn(ev.id,"+"+fmtN(ev.amt),"c"),100);
+    if(ev.id===NET.me){fanfare(Math.min(4,1+Math.floor(M.x/12)));rays();const c=rectC($("board"));fountain(c.x,c.y,20+M.x);
+      const d=document.createElement("div");d.className="mpop";d.innerHTML=`<span class="rib">BONUS</span><span class="memb big" style="--mc:${M.col}">${M.em}</span><small>ボーナス達成!!</small><b>${M.n}</b><strong>+${fmtN(ev.amt)}枚</strong><small>レベルアップ → Lv${ev.lv+1}(次は報酬UP)</small>`;document.body.appendChild(d);setTimeout(()=>d.remove(),2200)}
+    else toast(`${P(ev.id)?.name||""} ボーナス「${M.n}」+${fmtN(ev.amt)}`,"b");
+    return}
   if(ev.k==="charm"){charmPop(ev.id,ev.cs,ev.txt||"");return}
   if(ev.k==="lostCharm"){firePlayer(ev.id);toast(`${P(ev.id)?.name||""}:${ev.txt}`,"b");beep(200,.3,"sawtooth",.05);return}
-  if(ev.k==="bought"){ev.list.forEach((b,k)=>setTimeout(()=>{toast(`${b.name}:${b.ids.length?b.ids.map(id=>CHARMS[id].n).join("・"):"買わなかった"}`,"b");beep(700+k*80,.06)},k*400));return}
+  if(ev.k==="bought"){ev.list.forEach((b,k)=>setTimeout(()=>{toast(`${b.name}:${b.ids.length?b.ids.map(id=>MISSIONS[id].n).join("・"):"選ばなかった"}`,"b");beep(700+k*80,.06)},k*400));return}
   if(ev.k==="cash"){
     firePlayer(ev.id);const card=document.querySelector(`.pcard[data-id="${CSS.escape(ev.id)}"] .m`);
     if(ev.id===NET.me){
@@ -1236,19 +1549,22 @@ async function playEv(ev){
 function view(){
   if(!G)return;
   const me=meP();
-  $("tRound").textContent=G.round?`${G.round}/${maxRound()}`:"";
+  $("tRound").innerHTML=G.round?`${G.round}<span>/${maxRound()}</span>`:"-";
   const dl=G.players.find(p=>p.id===G.dealer);
-  $("rtrack").innerHTML=G.round?Array.from({length:maxRound()},(_,k)=>{const r=k+1;return `<i class="${r<G.round||(r===G.round&&G.phase==="end")?"done":r===G.round?"now":""}">${r}</i>${isShopRound(r)?`<span class="shop" title="ショップ">店</span>`:""}`}).join(""):"";
+  $("rtrack").innerHTML=G.round?Array.from({length:maxRound()},(_,k)=>{const r=k+1;return `<i class="${r<G.round||(r===G.round&&G.phase==="end")?"done":r===G.round?"now":""}">${r}</i>${isShopRound(r)?`<span class="shop" title="ボーナス選択">★</span>`:""}`}).join(""):"";
   $("tDealer").innerHTML=dl?`<i class="chip up" style="background:${COLORS[dl.color].v}">${sym(dl.color)}</i>${COLORS[dl.color].n}・${esc(dl.name)}`:"-";
   $("spinno").innerHTML=G.spin&&(G.phase==="run"||G.phase==="check")?`<b>${Math.min(G.spin,MAX_SPIN)}</b><small>/${MAX_SPIN}回目</small>`:"";
   const hh=(G.hist||[]).filter(h=>h!=="R"),cnt=[0,0,0,0,0,0];hh.forEach(h=>cnt[h.c]++);
-  $("hist").innerHTML=`<div class="hrow">${(G.hist||[]).slice(-40).map(h=>h==="R"?`<span class="rsep"></span>`:`<i class="${h.c===OUT?"o":""}" style="${h.c===OUT?"":`background:${COLORS[h.c].v}`}">${h.c===OUT?"✕":sym(h.c)}</i>`).join("")||`<small>ここに止まった色の記録が並びます</small>`}</div>
-    <div class="dcount">${COLORS.map((c,k)=>`<span><i style="background:${c.v};color:rgba(20,18,28,.9)">${sym(k)}</i>${cnt[k]}回</span>`).join("")}<span><i class="o">✕</i>${cnt[OUT]}回</span></div>`;  $("tSpin").textContent=G.spin?`${Math.min(G.spin,MAX_SPIN)}/${MAX_SPIN}`:"-";
-  $("tOdds").textContent="×"+fmtN(oddsAt(G.oi));
+  const hw=($("hist").clientWidth||600)-8,perRow=Math.max(6,Math.floor(hw/21)),K=perRow*2;
+  const hhtml=`<div class="hrow">${(G.hist||[]).slice(-K).map(h=>h==="R"?`<span class="rsep"></span>`:`<i class="${h.c===OUT?"o":""}" style="${h.c===OUT?"":`background:${COLORS[h.c].v}`}">${h.d}</i>`).join("")||`<small>ここに止まった色と数字の記録が並びます</small>`}</div>
+    <div class="dcount"><small>色</small>${COLORS.map((c,k)=>`<span><i style="background:${c.v};color:rgba(20,18,28,.9)">${sym(k)}</i>${cnt[k]}回</span>`).join("")}<span><i class="o">✕</i>${cnt[OUT]}回</span></div>
+    <div class="dcount nums"><small>数字</small>${[1,2,3,4,5,6].map(k=>`<span><b class="dn">${k}</b>${(G.dcount||[])[k-1]||0}回</span>`).join("")}</div>`;
+  if(hhtml!==setHTML.hist){setHTML.hist=hhtml;$("hist").innerHTML=hhtml}
+
   $("tUp").innerHTML=G.ups.map(u=>`<i style="width:22px;height:22px;border-radius:5px;border:2px solid var(--fg);background:${COLORS[u].v}"></i>`).join("")||"-";
   $("tRoom").textContent=NET.code||"-";
-  const PH={lobby:"待機中",bet:"色と賭けを選ぶ",resolve:"色を決定中",run:"ルーレット",check:"利確チャンス",roundEnd:"ラウンド終了",shop:"ショップ",end:"ゲーム終了"};
-  $("tPhase").textContent=PH[G.phase]||"";
+  const PH={lobby:"待機中",bet:"色と賭けを選ぶ",resolve:"色を決定中",run:"ルーレット",check:"利確チャンス",roundEnd:"ラウンド終了",shop:"ボーナス選択",end:"ゲーム終了"};
+  $("tPhase").textContent="制限時間";
   renderPlayers();animCards();renderPanel();paintBoard();
   fitAll();
   if(!V.anim)showYokoku((G.phase==="run"||G.phase==="check")?heatLevel(me,V.pos):0);
@@ -1270,7 +1586,7 @@ function view(){
   if(G.phase==="end")showEnd();
 }
 function nextDealer(){if(!G.round||!G.cycle)return null;const n=G.players.length;
-  for(let k=0;k<n;k++){const q=G.players[n-1-((G.round+k)%n)];if(q&&q.alive)return G.round<maxRound()||G.phase==="bet"?q.id:null}return null}
+  for(let k=0;k<n;k++){const q=G.players[n-1-((G.round-(G.dealer?0:1)+k)%n)];if(q&&q.alive)return G.round<maxRound()||G.phase==="bet"?q.id:null}return null}
 function roundVal(p){if(!G.round)return "-";if(p.status==="cashed")return `<span style="color:var(--c3)">+${fmtN(p.rcash)}</span>`;
   if(p.status==="active")return `<span style="color:var(--stock)">+${fmtN(p.stock)}</span>`;if(p.status==="out")return `<span style="color:var(--out-fg)">-${fmtN(p.rlost)}</span>`;return "-"}
 function rankOf(p){return 1+G.players.filter(q=>q!==p&&(q.alive>p.alive||(q.alive===p.alive&&q.medals>p.medals))).length}
@@ -1284,24 +1600,25 @@ function renderRank(){
     return `<span class="rr ${p.id===NET.me?"me":""} ${st}"><i class="no ${i===0&&v>0?"top":""}">${i+1}</i>${esc(p.tag)}<em>${p.status==="out"?`-${fmtN(p.rlost)}`:(v?"+"+fmtN(v):"0")}</em></span>`}).join("");
 }
 function renderPlayers(){
-  const ST={wait:["選択中",""],active:["参加中","active"],cashed:["利確済み","cashed"],out:["OUT","out"],dead:["脱落","dead"],shop:["買い物中",""]};
-  $("players").innerHTML=G.players.map(p=>{
+  const ST={wait:["選択中",""],active:["参加中","active"],cashed:["利確済み","cashed"],out:["OUT","out"],dead:["脱落","dead"],shop:["選択中",""]};
+  const html=G.players.map(p=>{
     let st=ST[p.status]||["",""];
     if(G.phase==="bet"&&p.alive)st=p.locked?["決定","ready"]:["選択中",""];
-    if(G.phase==="shop"&&p.alive)st=p.ready?["準備OK","ready"]:["買い物中",""];
+    if(G.phase==="shop"&&p.alive)st=p.ready?["準備OK","ready"]:["選択中",""];
     if(G.phase==="check"&&p.deciding)st=["考え中","active"];
     if(!p.alive)st=["脱落","dead"];
     const col=p.color??(G.phase==="bet"?p.want:null);
     const hideBet=G.phase==="bet"&&!p.locked&&p.id!==NET.me;
     const isD=p.id===G.dealer,isN=p.id===nextDealer();
     return `<div class="pcard ${p.id===NET.me?"me":""} ${p.alive?"":"dead"} ${isD?"dealer":""}" data-id="${esc(p.id)}" style="${col!=null?`border-color:${COLORS[col].v}`:""}">
-      ${isD?`<div class="oya"><b>親</b><span>${col!=null?COLORS[col].n:""}に止まると全員オッズUP・親は2倍</span></div>`:isN&&G.phase!=="end"?`<div class="oya next"><b>次の親</b></div>`:""}
+      <div class="oya ${isD?"":isN&&G.phase!=="end"?"next":"none"}">${isD?`<b>親</b><span>${col!=null?`${sym(col)}${COLORS[col].n}`:""}で全員オッズUP</span>`:isN&&G.phase!=="end"?`<b>次の親</b>`:""}</div>
       <div class="top">${G.round?`<span class="rk r${rankOf(p)}">${rankOf(p)}位</span>`:""}<span class="col" style="${col!=null?`background:${COLORS[col].v}`:""}">${sym(col)}</span><b>${esc(p.name)}</b>${p.id===NET.me?`<span class="me-tag">あなた</span>`:""}${p.bot?`<span class="me-tag">CPU</span>`:""}${!p.online?`<span class="me-tag">切断</span>`:""}<span class="st ${st[1]}">${st[0]}</span></div>
-      <div class="coinrow"><i class="cicn"></i><b class="m fit">${fmtN(p.medals)}</b>${p.id===NET.me&&G.round?`<span class="diff ${p.medals>=START_MEDALS?"up":"down"}">${p.medals>=START_MEDALS?"+":""}${fmtN(p.medals-START_MEDALS)}</span>`:""}</div>
+      <div class="coinrow"><i class="cicn"></i><b class="m fit">${fmtN(p.medals)}</b>${G.round&&(p.locked||p.status==="active"||p.id===NET.me)&&G.phase!=="shop"&&G.phase!=="end"?`<span class="betneg" title="賭けコイン">-${hideBet?"?":fmtN(p.bet)}</span>`:""}</div>
       ${p.status==="active"?`<div class="pendrow"><small>利確前</small><b class="s fit">+${fmtN(p.stock)}</b><span>OUTで消える</span></div>`:""}
-      <div class="nums2"><div><small>賭け</small><b class="fit">${hideBet?"?":fmtN(p.bet)}</b></div><div><small>R収支</small><b class="fit rg">${roundVal(p)}</b></div></div>
-      <div class="ch">${p.charms.map(c=>`<span class="chn ${c.dw!=="none"?"hasdw":""}" data-tip="${c.id}" data-dw="${c.dw}">${icon(c.id)}<em>${CHARMS[c.id].n}${c.life?`(${c.life})`:""}</em></span>`).join("")||`<span class="none">お守りなし</span>`}</div>
+
+      <div class="ch">${(p.missions||[]).map(id=>`<span class="mchip ${p.ms&&p.ms.done[id]?"done":""}" data-mtip="${id}" style="--mc:${MISSIONS[id].col}"><i>${MISSIONS[id].em}</i>${MISSIONS[id].n}${mLv(p,id)?`<u>Lv${mLv(p,id)+1}</u>`:""}</span>`).join("")||`<span class="none">ボーナスなし</span>`}</div>
     </div>`}).join("");
+  if(html!==setHTML.players){setHTML.players=html;$("players").innerHTML=html}
 }
 function timerTick(){
   if(!G)return;const left=G.left?Math.max(0,G.left-(Date.now()-(G._recv||Date.now()))):0;
@@ -1315,15 +1632,19 @@ setInterval(timerTick,200);
 
 let panelSig="",SHOWN={stock:0},CARDV={},lastPhase="";
 /* はみ出す数字は文字を小さくして収める */
-function fitAll(root){(root||document).querySelectorAll(".fit").forEach(el=>{el.style.fontSize="";let fs=parseFloat(getComputedStyle(el).fontSize),n=0;
-  while(el.scrollWidth>el.clientWidth+1&&fs>9&&n<20){fs*=.9;el.style.fontSize=fs+"px";n++}})}
+const FITC=new Map(),setHTML={};
+function fitAll(root){(root||document).querySelectorAll(".fit").forEach(el=>{if(el.closest(".tile"))return;
+  const key=el.className+"|"+el.textContent+"|"+el.clientWidth;if(FITC.has(key)){const v=FITC.get(key);if(v)el.style.setProperty("font-size",v,"important");else el.style.removeProperty("font-size");return}
+  el.style.removeProperty("font-size");let fs=parseFloat(getComputedStyle(el).fontSize),n=0;
+  while(el.scrollWidth>el.clientWidth+1&&fs>8&&n<25){fs*=.9;el.style.setProperty("font-size",fs+"px","important");n++}
+  if(FITC.size>800)FITC.clear();FITC.set(key,n?fs+"px":"")})}
 function animCards(){G.players.forEach(p=>{const card=document.querySelector(`.pcard[data-id="${CSS.escape(p.id)}"]`);if(!card)return;const o=CARDV[p.id]||{m:p.medals,s:p.stock};
   countUp(card.querySelector(".m"),o.m,p.medals,800);if(p.status==="active")countUp(card.querySelector(".s"),o.s,p.stock,700);CARDV[p.id]={m:p.medals,s:p.stock}})}
 function myCharms(me){return me.charms.length?`<div><div class="label">自分のお守り(${me.charms.length}/5)</div><div class="mych">${me.charms.map(c=>`<div data-tip="${c.id}" data-dw="${c.dw}">${icon(c.id)}<span><b>${CHARMS[c.id].n}</b>${c.dw!=="none"?`<em class="dwt">${DRAWBACKS[c.dw].d}</em>`:""}</span></div>`).join("")}</div></div>`:""}
 function renderPanel(){
   const me=meP(),el=$("panel");if(!me){el.innerHTML="";return}
   // 入力欄をこわさないよう、内容が変わったときだけ描き直す
-  const sig=JSON.stringify([G.phase,me.status,me.alive,me.locked,me.want,me.bet,me.medals,me.stock,me.deciding,me.ready,me.offers,me.charms,G.ups,G.spin<=SAFE_SPINS,G.players.map(p=>p.bought),me.ob,me.heat,me.lastGain,G.oi,G.players.map(p=>[p.want,p.color,p.name])]);
+  const sig=JSON.stringify([G.phase,me.status,me.alive,me.locked,me.want,me.bet,me.medals,me.stock,me.deciding,me.ready,me.offers,me.charms,me.missions,me.picked,me.ms,G.spin,G.oi,me.ob,me.heat,G.ups,G.spin<=SAFE_SPINS,G.players.map(p=>p.bought),me.ob,me.heat,me.lastGain,G.oi,G.players.map(p=>[p.want,p.color,p.name])]);
   if(sig===panelSig)return;panelSig=sig;
   if(!me.alive){el.innerHTML=`<div class="watch"><b>脱落</b>コインが尽きました。最後まで観戦できます。</div>`;return}
   if(G.phase==="bet"){
@@ -1333,45 +1654,42 @@ function renderPanel(){
         <button type="button" data-d="reset" ${me.locked?"disabled":""}>リセット</button>
         <input id="betIn" type="number" inputmode="numeric" min="1" max="${me.medals}" value="${me.bet}" ${me.locked?"disabled":""} aria-label="賭けコインの枚数">
         <button type="button" data-d="max" ${me.locked?"disabled":""}>MAX</button></div></div>
-      <div class="preview"><span>自分の色に止まると</span><b>+${me.bet*ODDS[0]}枚</b></div>
+      ${payEq(me,true)}
       ${G.round===1?`<div><div class="label">色(1人1色。かぶったらルーレットで決める。ゲーム終了まで固定)</div><div class="colors">${COLORS.map((c,i)=>`<button class="cbtn" style="background:${c.v}" aria-label="${c.n}" aria-pressed="${me.want===i}" data-c="${i}" ${me.locked?"disabled":""}>${OPT.cb?`<span class="bsym">${c.s}</span>`:""}${taken(i)?`<span class="tk">${esc(taken(i))}</span>`:""}</button>`).join("")}</div></div>`
         :`<div class="row"><span>あなたの色(固定)</span><span style="display:flex;gap:6px;align-items:center"><i class="chip" style="background:${COLORS[me.color??me.want].v}"></i><b>${COLORS[me.color??me.want].n}</b></span></div>`}
-      ${me.locked?`<div class="lockd">決定しました。ほかの人を待っています</div>`:`<button class="big" id="lockBtn" ${me.want==null?"disabled":""}>${me.want==null?"色を選ぶ":G.round===1?"これで決定":"この賭けで決定"}</button>`}
+      <div class="actions">${me.locked?`<div class="lockd">決定しました。ほかの人を待っています</div>`:`<button class="big" id="lockBtn" ${me.want==null?"disabled":""}>${me.want==null?"色を選ぶ":G.round===1?"これで決定":"この賭けで決定"}</button>`}</div>
       </div>`;
     return;
   }
   if(G.phase==="shop"){
-    const kw=new Set(me.charms.flatMap(c=>CHARMS[c.id].kw));
-    el.innerHTML=`<div class="box"><h2>ショップ <small data-left></small></h2>
-      <div class="shoprow" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span>所持 <b style="color:var(--gold);font-family:var(--display);font-size:1.2rem">${fmtN(me.medals)}</b> 枚</span>
-</div>
-      <div class="offers">${me.offers.map((o,k)=>{const d=CHARMS[o.id],syn=d.kw.filter(x=>kw.has(x));return `<div class="offer ${o.sold?"sold":""}" data-tip="${o.id}" data-dw="${o.dw}">${icon(o.id)}
-        <div style="min-width:0"><b>${d.n} ${syn.length&&!o.sold?`<span class="syn">シナジー</span>`:""}</b><div>${d.kw.map(x=>`<span class="kw">${x}</span>`).join("")}</div><small>${hl(d.d)}</small><small class="${o.dw==="none"?"nodw":"dwt"}">デメリット:${DRAWBACKS[o.dw].d}</small></div>
-        <button data-buy="${k}" ${o.sold||me.ready||me.bought.length>=1||me.medals<costOf(me,o)||me.charms.length>=5?"disabled":""}>${o.sold?"購入":`${o.pct}%<br><small style="font-family:var(--body);font-size:.66rem">${fmtN(costOf(me,o))}枚</small>`}</button></div>`}).join("")}</div>
-      <div class="lockd" style="color:var(--muted)">${me.bought.length?"このショップではもう買えません":"1つだけ選べます。値段は所持コインの割合"}</div>
-      ${myCharms(me)}
-      ${me.ready?`<div class="lockd">準備OK。ほかの人を待っています</div>`:`<button class="big" id="readyBtn">準備OK</button>`}</div>`;
+    const full=me.missions.length>=MAXM;
+    el.innerHTML=`<div class="box"><h2>ボーナス選択 <small data-left></small></h2>
+      <div class="lockd" style="color:var(--fg)">折り返し地点!3つから1つ、無料で選べます</div>
+      <div class="moffers">${me.offers.map((o,k)=>{const M=MISSIONS[o.id];return `<button class="mcard pick ${me.picked===o.id?"on":""}" data-pick="${k}" ${me.ready?"disabled":""} style="--mc:${M.col}">
+        ${mEmblem(o.id)}<span class="mbody"><span class="mhead"><b>${M.n}</b><span class="mx">賭け×${M.x}</span></span><small>${hl(M.d)}</small><small class="mlvup">達成するたびにレベルアップ(報酬+${Math.ceil(M.x/4)})</small></span></button>`}).join("")}</div>
+      ${full&&!me.ready?`<div class="lockd" style="color:#ff8a92">枠がいっぱいです。選ぶと、下で選んだボーナスと入れ替わります</div>
+        <div class="mdrop">${me.missions.map((id,k)=>`<label><input type="radio" name="mdrop" value="${k}" ${k===0?"checked":""}> ${MISSIONS[id].n}</label>`).join("")}</div>`:""}
+      <div class="actions">${me.ready?`<div class="lockd">${me.picked?`「${MISSIONS[me.picked].n}」を選びました。`:""}ほかの人を待っています</div>`:`<button id="readyBtn">選ばずに進む</button>`}</div>
+      ${myMissions(me,true)}</div>`;
     return;
   }
   if(me.status==="active"||me.status==="out"||me.status==="cashed"){
     const tS=tierOf(me.stock),tierS=tS>=4?"t3":tS>=3?"t2":tS>=2?"t1":"";
     el.innerHTML=`<div class="box">
-      ${me.status==="active"?`<div class="stock ${tierS}"><small>未確定コイン</small><b class="fit">${fmtN(me.stock)}</b><span>利確すると <em>コイン</em> に入る / <u>OUT</u> で消える</span></div>
-      <div class="bigpay"><span>自分の色<i class="chip" style="background:${COLORS[me.color].v}"></i>に止まると</span><b class="fit">+${fmtN(me.bet*oddsOf(me))}枚</b></div>
-      <div class="bigpay bonus"><span>20回まで生き残ると<em class="x2">ボーナス</em></span><b class="fit">+${fmtN(me.bet*BONUS20)}枚</b></div>
-      ${G.ups.length?(()=>{const up=G.ups[0],mineUp=up===me.color,nx=oddsAt(G.oi+me.ob+(mineUp?2:1))+me.heat;
-        return `<div class="bigpay upline ${mineUp?"mine":""}"><span>${mineUp?"自分の色=":""}UPの色<i class="chip" style="background:${COLORS[up].v}"></i>に止まると${mineUp?`<em class="x2">オッズUP 2倍</em>`:""}</span><b class="fit">×${fmtN(oddsOf(me))}→×${fmtN(nx)}</b></div>`})():""}
-      ${me.deciding?`<div class="check"><h3>利確チャンス <small data-left style="font-family:var(--body);font-size:.8rem;color:var(--muted)"></small></h3><p>今やめれば <b>${fmtN(me.stock)}枚</b> が手に入る。何もしないと「続ける」になる。</p>
+      ${me.status==="active"?`${me.deciding?`<div class="check actions"><h3>利確チャンス <small data-left style="font-family:var(--body);font-size:.8rem;color:var(--muted)"></small></h3><p>今やめれば <b>${fmtN(me.stock)}枚</b> が手に入る。何もしないと「続ける」になる。</p>
         <div class="two"><button class="safe" id="cashBtn">利確する</button><button class="big" id="contBtn">続ける</button></div></div>`
-        :G.phase==="check"?`<div class="lockd">ほかの人の判断を待っています</div>`:""}`
+        :G.phase==="check"?`<div class="lockd">ほかの人の判断を待っています</div>`:""}
+      <div class="stock ${tierS}"><small>未確定コイン</small><b class="fit">${fmtN(me.stock)}</b><span>利確すると <em>コイン</em> に入る / <u>OUT</u> で消える</span></div>
+      ${payEq(me,false)}
+      ${bonusCard(me)}
+      ${myMissions(me,false)}`
       :me.status==="cashed"?`<div class="watch"><b>利確済み</b>このラウンドは観戦。+${fmtN(me.lastGain)}枚 手に入れました。</div>`
       :`<div class="watch"><b>OUT</b>このラウンドは観戦です。</div>`}
-      ${myCharms(me)}
     </div>`;
     const sb=el.querySelector(".stock b");if(sb){countUp(sb,SHOWN.stock??me.stock,me.stock,700)}SHOWN.stock=me.status==="active"?me.stock:0;
     return;
   }
-  el.innerHTML=`<div class="watch"><b>${G.phase==="end"?"ゲーム終了":"待機中"}</b></div>${myCharms(me)}`;
+  el.innerHTML=`<div class="watch"><b>${G.phase==="end"?"ゲーム終了":"待機中"}</b></div>${myMissions(me,true)}`;
 }
 
 /* ---------- 入力 ---------- */
@@ -1385,6 +1703,7 @@ document.addEventListener("click",e=>{
   const b=t.closest("[data-buy]");if(b&&!b.disabled){send({a:"buy",k:+b.dataset.buy});jingle([784,1047],60)}
   if(t.id==="rerollBtn")send({a:"reroll"});
   if(t.id==="readyBtn")send({a:"ready"});
+  const pk=t.closest("[data-pick]");if(pk&&!pk.disabled){const dr=document.querySelector('input[name="mdrop"]:checked');send({a:"mpick",k:+pk.dataset.pick,drop:dr?+dr.value:null});jingle([784,1047,1319],60)}
 });
 document.addEventListener("change",e=>{if(e.target.id==="betIn")send({a:"pick",bet:+e.target.value})});
 $("snd").onclick=()=>{soundOn=!soundOn;$("snd").textContent="音:"+(soundOn?"ON":"OFF")};
@@ -1392,8 +1711,10 @@ $("setBtn").onclick=openSettings;$("dexBtn").onclick=openDex;
 $("bgm").onclick=()=>{bgmOn=!bgmOn;$("bgm").textContent="BGM:"+(bgmOn?"ON":"OFF")};
 
 /* ---------- ロビー ---------- */
-function showModal(h){$("modal").innerHTML=h;$("overlay").hidden=false}
-function hideModal(){$("overlay").hidden=true}
+let MODAL_KIND="";
+function showModal(h,kind){MODAL_KIND=kind||"other";$("modal").innerHTML=h;$("overlay").hidden=false}
+function showModalL(h){showModal(h,"lobby")}
+function hideModal(){$("overlay").hidden=true;MODAL_KIND=""}
 function lobbyError(t){const e=$("lerr");if(e)e.textContent=t;else showModal(`<h2>エラー</h2><p>${esc(t)}</p><button class="big" onclick="location.reload()">最初に戻る</button>`)}
 function lobbyStart(){
   const ok=typeof Peer!=="undefined";
@@ -1404,7 +1725,7 @@ function lobbyStart(){
     <div class="two"><input type="text" id="lcode" maxlength="4" placeholder="コード4文字" style="text-transform:uppercase"><button class="big" id="ljoin">参加する</button></div>`
     :`<p>通信ライブラリを読み込めませんでした。インターネットにつながった状態で、GitHub Pagesなどに置いたページを開くと友達と遊べます。</p>`}
     <button id="loff">CPUとだけ遊ぶ(通信なし)</button>
-    <div class="two"><button id="lset">設定(音量)</button><button id="ldex">お守り図鑑</button></div>
+    <div class="two"><button id="lset">設定(音量)</button><button id="ldex">ボーナス一覧</button></div>
     <div class="err" id="lerr"></div>`);
   const nm=()=>$("lname").value.trim()||"プレイヤー";
   if(ok){$("lhost").onclick=()=>{$("lerr").textContent="部屋を作っています…";hostCreate(nm(),false)};
@@ -1418,12 +1739,12 @@ function lobbyHost(){
     ${NET.offline?`<p>通信なしモードです。CPUを追加して遊べます。</p>`:`<p>友達にこのコードを送ってください。</p><div class="code">${NET.code}</div>`}
     <div><div class="label">参加者(${G.players.length}/${MAX_PLAYERS})</div><div class="plist">${G.players.map(p=>`<div><span>${esc(p.name)}</span><span>${p.id===NET.me?"ホスト":p.bot?"CPU":"参加"}</span></div>`).join("")}</div></div>
     <div class="two"><button id="lbot" ${G.players.length>=MAX_PLAYERS?"disabled":""}>CPUを追加</button><button class="big" id="lgo">ゲーム開始</button></div>
-    <p style="font-size:.8rem">ルール:全員で同じ盤とルーレット。1人1色。各ラウンド3回目まではOUTに止まってもセーフ。親番が順番に回り、親の色がUPの色になる。ラウンド数は人数×2。全員が1回ずつ親をやるとショップ。コインが0になったら脱落。最後まで生き残ったらコインの多い人が勝ち。</p>`);
+    <p style="font-size:.8rem">ルール:全員で同じ盤とルーレット。1人1色。各ラウンド3回目まではOUTに止まってもセーフ。親番が順番に回り、親の色がUPの色になる。オッズは×2から始まりUPで+2ずつ、親は×3から+3ずつ。ラウンド数は人数×2。ラウンドの折り返しで、ボーナス条件を1つ選べる。コインが0になったら脱落。最後まで生き残ったらコインの多い人が勝ち。</p>`);
   $("lbot").onclick=()=>send({a:"bot"});
   $("lgo").onclick=()=>{hideModal();send({a:"start"})};
 }
 function lobbyGuest(){
-  showModal(`<h2>部屋 ${esc(NET.code)} に参加しました</h2><p>ホストがゲームを始めるのを待っています。</p>
+  showModalL(`<h2>部屋 ${esc(NET.code)} に参加しました</h2><p>ホストがゲームを始めるのを待っています。</p>
     <div class="plist">${G.players.map(p=>`<div><span>${esc(p.name)}</span><span>${p.id===NET.me?"あなた":p.bot?"CPU":""}</span></div>`).join("")}</div>`);
 }
 function showEnd(){
@@ -1465,7 +1786,7 @@ function heatLevel(me,from){
 }
 function showYokoku(h){const y=$("yokoku");
   if(!h){y.className="yokoku";y.innerHTML="";return}
-  y.className="yokoku on lv"+h.lv;y.innerHTML=`${["","チャンス!","激アツ!!","超激アツ!!!"][h.lv]}<small>当たれば未確定 ${fmtN(h.pot)}枚(${h.segs}/6マス)</small>`}
+  y.className="yokoku on lv"+h.lv;y.innerHTML=`${["","チャンス!","激アツ!!","超激アツ!!!"][h.lv]}<small>${fmtN(h.pot)}枚</small>`}
 function cutin(h){
   const lv=h.lv,t=["","チャンス!","激アツ!!","超激アツ!!!"][lv];
   showYokoku(h);
@@ -1502,21 +1823,70 @@ function charmPop(pid,ids,txt){
 }
 /* 図鑑 */
 function openDex(){
-  const me=meP(),own=new Set((me?.charms||[]).map(c=>c.id));
-  const groups=Object.keys(TAGNAME).map(t=>({t,ids:Object.keys(CHARMS).filter(id=>CHARMS[id].tag===t)})).filter(g=>g.ids.length);
-  showModal(`<h2>お守り図鑑 <small style="font-family:var(--body);font-size:.8rem;color:var(--muted)">${Object.keys(CHARMS).length}種類</small></h2>
-    ${groups.map(g=>`<div><div class="label">${TAGNAME[g.t]}</div><div class="dex">${g.ids.map(id=>{const d=CHARMS[id];return `<div class="dx ${own.has(id)?"own":""}">${icon(id)}<div><b>${d.n}${own.has(id)?`<span class="syn">所持</span>`:""}</b><div>${d.kw.map(k=>`<span class="kw">${k}</span>`).join("")}</div><small>${hl(d.d)}</small></div></div>`}).join("")}</div></div>`).join("")}
-    <div><div class="label">デメリット(ショップで並ぶときにランダムで1つ付く)</div><div class="dex">${Object.values(DRAWBACKS).map(w=>`<div class="dx dw"><div><b>${w.n}</b><small>${w.d}</small></div></div>`).join("")}</div></div>
+  const me=meP(),own=new Set(me?.missions||[]);
+  showModal(`<h2>ボーナス一覧 <small style="font-family:var(--body);font-size:.8rem;color:var(--muted)">${Object.keys(MISSIONS).length+1}種類</small></h2>
+    <p>条件を達成すると「賭け×倍率」のコインがもらえます。ラウンドの折り返しで1つ選べます。各ボーナスは1ラウンドに1回まで達成でき、達成するたびにレベルが上がって報酬が増えます。</p>
+    <div class="dex"><div class="mcard" style="cursor:default;--mc:#f7c948"><span class="memb" style="--mc:#f7c948">🏆</span><div class="mbody"><div class="mhead"><b>20回生存ボーナス</b><span class="mx">賭け×${BONUS20}</span></div><small>全員が最初から持っている。20回目まで生き残る</small></div></div>
+    ${Object.entries(MISSIONS).map(([id,M])=>`<div class="mcard ${own.has(id)?"own":""}" style="cursor:default;--mc:${M.col}">${mEmblem(id)}<div class="mbody"><div class="mhead"><b>${M.n}</b>${own.has(id)?`<span class="syn">選択中</span>`:""}<span class="mx">賭け×${M.x}</span></div><small>${hl(M.d)}</small></div></div>`).join("")}</div>
     <button class="big" id="dexClose">閉じる</button>`);
   $("modal").classList.add("wide");
   $("dexClose").onclick=()=>{$("modal").classList.remove("wide");if(G.phase==="lobby")lobbyStart();else hideModal()};
 }
+
+/* 「賭け × オッズ = 止まると」の式。オッズの下にUPで変わる倍率を小さく出す */
+function payEq(me,pre){
+  const od=pre?2:oddsOf(me),pay=me.bet*od,col=me.color??me.want;
+  let up="";
+  if(!pre&&G.ups.length){const u=G.ups[0],mine=u===me.color,nx=oddsNextOf(me);
+    up=`<small class="equp ${mine?"mine":""}"><i class="chip" style="background:${COLORS[u].v}">${sym(u)}</i>UPで×${fmtN(nx)}${mine?`<em>親は+3</em>`:`<em class="n">+2</em>`}</small>`}
+  else if(pre)up=`<small class="equp">UPの色で上がる</small>`;
+  return `<div class="eq">
+    <div class="eqc"><small>賭け</small><b class="fit">${fmtN(me.bet)}</b></div><span class="op">×</span>
+    <div class="eqc odds"><small>オッズ</small><b class="fit">${fmtN(od)}</b>${up}</div><span class="op">=</span>
+    <div class="eqc res"><small>${col!=null?`<i class="chip" style="background:${COLORS[col].v}">${sym(col)}</i>`:""}止まると</small><b class="fit">+${fmtN(pay)}</b></div>
+  </div>`}
+/* 20回生存ボーナス */
+function bonusCard(me){
+  const left=Math.max(0,MAX_SPIN-G.spin),pct=Math.min(100,G.spin/MAX_SPIN*100);
+  return `<div class="bonus20"><div class="rib">BONUS</div>
+    <div class="bt"><b>20回生存ボーナス!!</b><span>賭け×${BONUS20}</span></div>
+    <div class="bv fit">+${fmtN(me.bet*BONUS20)}<small>枚</small></div>
+    <div class="bbar"><i style="width:${pct}%"></i><span>${left?`あと${left}回`:"達成!"}</span></div></div>`}
+
+/* 自分のボーナス条件の一覧(進み具合つき) */
+function mEmblem(id){const M=MISSIONS[id];return `<span class="memb" style="--mc:${M.col}">${M.em}</span>`}
+function mStars(p,id){const lv=mLv(p,id);return lv?`<span class="mstars">${"★".repeat(Math.min(5,lv))}${lv>5?`+${lv-5}`:""}</span>`:""}
+function mCard(p,id,mode){const M=MISSIONS[id],ms=p.ms||{hits:0,streak:0,sixes:0,laps:0,conts:0,ups:0,seen:[],done:{},dseen:[],dc:[0,0,0,0,0,0],sum:0,hitNums:[],lucky:0},done=ms.done&&ms.done[id];
+  const live=mode==="live"&&p.status==="active"&&!done&&G.phase!=="shop";
+  return `<div class="mcard ${done?"done":""} ${mode}" data-mtip="${id}" style="--mc:${M.col}">
+    ${mEmblem(id)}<div class="mbody"><div class="mhead"><b>${M.n}</b>${mStars(p,id)}<span class="mx">${done?"達成!":`+${fmtN(p.bet*mX(p,id))}`}</span></div>
+    <small>${hl(M.d)}</small>${live?`<div class="mvis">${M.vis(ms,p)}</div>`:""}</div></div>`}
+function myMissions(me,all){const ids=me.missions||[];if(!ids.length)return "";return `<div class="mlist">${ids.map(id=>mCard(me,id,"live")).join("")}</div>`}
+
+/* 盤の中の文字はマスからはみ出さないよう縮める */
+function fitBoard(){const b=$("board");if(!b)return;b.querySelectorAll(".tile .fit").forEach(el=>{el.style.removeProperty("font-size");const t=el.parentElement,max=t.clientWidth-4;let fs=parseFloat(getComputedStyle(el).fontSize),n=0;
+  while(el.scrollWidth>max&&fs>5&&n<25){fs*=.88;el.style.setProperty("font-size",fs+"px","important");n++}})}
+/* 盤の大きさを画面の高さに合わせる(スクロールせずに全体が見えるように) */
+/* 盤の大きさ:画面の高さと「盤の上端の位置」だけから決める(盤の中身の高さには影響されない=ガクつかない) */
+const HIST_H=96; /* 盤の下の記録欄は固定の高さ */
+function sizeBoard(){const w=$("boardwrap");if(!w)return;
+  if(innerWidth<=760){w.style.maxWidth="";return}
+  const top=w.getBoundingClientRect().top,avail=innerHeight-top-12-HIST_H-26;
+  const nw=Math.max(340,Math.min(680,Math.floor(avail))),cur=parseFloat(w.style.maxWidth)||0;
+  if(Math.abs(nw-cur)>2){w.style.maxWidth=nw+"px";requestAnimationFrame(fitBoard)}}
+let sizeT=null;const sizeSoon=()=>{clearTimeout(sizeT);sizeT=setTimeout(sizeBoard,60)};
+addEventListener("resize",()=>{sizeSoon();fitAll()});
+new ResizeObserver(sizeSoon).observe(document.querySelector(".topbar"));
+new ResizeObserver(sizeSoon).observe(document.querySelector(".leftcol"));
+sizeBoard();
 /* お守りのツールチップ */
 const TIP=document.createElement("div");TIP.className="tip";TIP.hidden=true;document.body.appendChild(TIP);
 function showTip(id,x,y,dw){const d=CHARMS[id];if(!d)return;
   TIP.innerHTML=`<b>${d.n}</b><div>${d.kw.map(k=>`<span class="kw">${k}</span>`).join("")}</div>${hl(d.d)}${dw&&DRAWBACKS[dw]?`<div class="${dw==="none"?"nodw":"dwt"}">デメリット:${DRAWBACKS[dw].d}</div>`:""}`;TIP.hidden=false;
   const w=TIP.offsetWidth,h=TIP.offsetHeight;TIP.style.left=Math.max(8,Math.min(innerWidth-w-8,x+14))+"px";TIP.style.top=Math.max(8,Math.min(innerHeight-h-8,y+16))+"px"}
-document.addEventListener("mousemove",e=>{const t=e.target.closest&&e.target.closest("[data-tip]");if(t)showTip(t.dataset.tip,e.clientX,e.clientY,t.dataset.dw);else TIP.hidden=true});
+document.addEventListener("mousemove",e=>{const mt=e.target.closest&&e.target.closest("[data-mtip]");
+  if(mt){const M=MISSIONS[mt.dataset.mtip];{const mp=meP();TIP.innerHTML=`<b>${M.em} ${M.n}</b>${hl(M.d)}<div class="nodw">達成で 賭け×${mp?mX(mp,mt.dataset.mtip):M.x}(達成するたびに報酬UP)</div>`}TIP.hidden=false;const w=TIP.offsetWidth,h=TIP.offsetHeight;TIP.style.left=Math.max(8,Math.min(innerWidth-w-8,e.clientX+14))+"px";TIP.style.top=Math.max(8,Math.min(innerHeight-h-8,e.clientY+16))+"px";return}
+  const t=e.target.closest&&e.target.closest("[data-tip]");if(t)showTip(t.dataset.tip,e.clientX,e.clientY,t.dataset.dw);else TIP.hidden=true});
 let tipT=null;document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("[data-tip]");if(!t||e.target.closest("button"))return;
   const r=t.getBoundingClientRect();showTip(t.dataset.tip,r.left,r.bottom,t.dataset.dw);clearTimeout(tipT);tipT=setTimeout(()=>TIP.hidden=true,2800)});
 document.addEventListener("pointerdown",()=>{try{if(AC&&AC.state==="suspended")AC.resume()}catch(e){}});
